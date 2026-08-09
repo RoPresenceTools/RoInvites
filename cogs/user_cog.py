@@ -126,9 +126,10 @@ class UserCog(commands.Cog):
         if thumbnail_url is not None:
             embed.set_thumbnail(url=thumbnail_url)
 
-        view = discord.ui.View()
-        join_btn = discord.ui.Button(label="Join in Roblox", url=join_url)
-        view.add_item(join_btn)
+        if join_url is not None:
+            view = discord.ui.View()
+            join_btn = discord.ui.Button(label="Join in Roblox", url=join_url)
+            view.add_item(join_btn)
 
         await interaction.followup.send(embed=embed, view=view)
 
