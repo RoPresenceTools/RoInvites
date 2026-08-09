@@ -202,7 +202,7 @@ class TrackerCore:
         game_instance_id = presence["game_instance_id"]
 
         if place_id == None:
-            return ("Invite Card", f"{display_name} (@{username}) isn't playing anything right now.", "https://roblox.com/home")
+            return ("Invite Card", f"{display_name} (@{username}) isn't playing anything right now.", None)
 
         game = presence["last_location"]
         embed_title = f"Invite Card"
