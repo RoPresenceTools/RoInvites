@@ -171,7 +171,7 @@ class TrackerCore:
             color=embed_color
         )
         embed.set_footer(
-            text=f"Place ID: {place_id}" + (f" ({game_instance_id})" if max_players == 1 else "")
+            text=f"Place ID: {place_id}{f" ({game_instance_id})" if max_players == 1 else ""}"
         )
 
         thumbnail_url = await self.bot.api.get_avatar_headshot(user_id)
