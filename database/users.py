@@ -68,6 +68,14 @@ class UserManager:
                 WHERE discord_id = $1
             """, discord_user.id)
 
+    async def get_discord_id_from_user(self, user_id):
+        async with self.pool.acquire() as conn:
+            return await conn.fetchval("""
+                SELECT discord_id
+                FROM users
+                WHERE user_id = $1
+            """, user_id)
+
     async def get_all_users(self):
         async with self.pool.acquire() as conn:
             rows = await conn.fetch("""

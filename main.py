@@ -9,12 +9,13 @@ headers = {
     "Cookie": f".ROBLOSECURITY={os.environ["cookie"]}"
 }
 
-version = "2.4.2"
+version = "2.5.0"
 patch_notes = """
 Updated from __v{0}__ to __v{1}__
 
 **Patch Notes:**
-- Remove references to `dev_guild`
+- Added Discord usernames to user cards
+- Added avatar headshot images to invite embeds and user stat embeds
 """
 
 if not os.path.exists("./database/backups/"):

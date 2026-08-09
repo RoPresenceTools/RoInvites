@@ -323,9 +323,7 @@ class LeaderboardManager:
         if user_id not in guild_user_ids:
             return ("Error", "That user isn't in this server.")
 
-        creation_date = datetime.now().strftime("%m-%d-%Y")
-        creation_time = datetime.now().strftime("%H:%M:%S")
-
+        discord_user_id = await self.bot.user_manager.get_discord_id_from_user(user_id)
         leaderboard_spot = await self.get_leaderboard_position(guild, user_id)
         game_playtimes = await self.get_game_playtimes_ranked(user_id)
 
@@ -338,17 +336,20 @@ class LeaderboardManager:
         username = await self.bot.user_manager.get_username(user_id)
 
         message_title = f"{display_name}'s usercard"
-        message_content = f"Created on {creation_date} @ {creation_time} EST"
 
-        message_content += f"\n\n**Your Playtimes:**"
+        message_content = "**Your Info:**"
+        message_content += f"\nRoblox username: @{username}"
+        message_content += f"\nDiscord username: <@{discord_user_id}>"
+
+        message_content += "\n\n**Your Playtimes:**"
         message_content += f"\nOverall Playtime: {total / 3600:.2f}h"
 
-        message_content += f"\n\n**Your Standings:**"
+        message_content += "\n\n**Your Standings:**"
         message_content += f"\nOverall Leaderboard Position: #{leaderboard_spot}"
         message_content += f"\nSince-Last-Snapshot Leaderboard Position: #{ls_leaderboard_spot}"
 
         overall_games = 0
-        message_content += f"\n\n**Your Top 5 Games Overall:**"
+        message_content += "\n\n**Your Top 5 Games Overall:**"
         for game in game_playtimes[:5]:
             if game["playtime"] > 0:
                 await self.api.cache_id(game["place_id"])
@@ -377,9 +378,7 @@ class LeaderboardManager:
     async def get_user_stats_dms(self, discord_user):
         user_id = await self.bot.user_manager.get_user_from_discord_id(discord_user)
 
-        creation_date = datetime.now().strftime("%m-%d-%Y")
-        creation_time = datetime.now().strftime("%H:%M:%S")
-
+        discord_user_id = await self.bot.user_manager.get_discord_id_from_user(user_id)
         game_playtimes = await self.get_game_playtimes_ranked(user_id)
 
         total = await self.bot.stat_manager.get_total_playtime(user_id)
@@ -387,7 +386,10 @@ class LeaderboardManager:
         username = await self.bot.user_manager.get_username(user_id)
 
         message_title = f"{display_name}'s usercard"
-        message_content = f"Created on {creation_date} @ {creation_time} EST"
+
+        message_content = "**Your Info:**"
+        message_content += f"\nRoblox username: @{username}"
+        message_content += f"\nDiscord username: <@{discord_user_id}>"
 
         message_content += f"\n\n**Your Playtimes:**"
         message_content += f"\nOverall Playtime: {total / 3600:.2f}h"

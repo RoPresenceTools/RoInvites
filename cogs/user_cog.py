@@ -70,6 +70,12 @@ class UserCog(commands.Cog):
             description=message_content,
             color=discord.Color.dark_gold() if message_title != "Error" else red
         )
+
+        user_id = await self.bot.user_manager.get_user_from_discord_id(interaction.user)
+        thumbnail_url = await self.bot.api.get_avatar_headshot(user_id)
+        if thumbnail_url is not None:
+            embed.set_thumbnail(url=thumbnail_url)
+
         await interaction.followup.send(embed=embed)
 
     @user.command(name="freeze", description="Freezes your Roblox Invites account")
@@ -114,7 +120,12 @@ class UserCog(commands.Cog):
             description=message_content,
             color=discord.Color.dark_purple() if message_title != "Error" else red
         )
-        
+
+        user_id = await self.bot.user_manager.get_user_from_discord_id(interaction.user)
+        thumbnail_url = await self.bot.api.get_avatar_headshot(user_id)
+        if thumbnail_url is not None:
+            embed.set_thumbnail(url=thumbnail_url)
+
         view = discord.ui.View()
         join_btn = discord.ui.Button(label="Join in Roblox", url=join_url)
         view.add_item(join_btn)

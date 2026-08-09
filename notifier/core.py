@@ -1,8 +1,8 @@
+import discord
 from styling.ansi import *
 from styling.ri_colors import *
 from styling.formatting import *
 from database.database import *
-from notifier.send_embed import send_embed
 
 class TrackerCore:
     def __init__(self, bot):
@@ -134,7 +134,7 @@ class TrackerCore:
 
         join_embed_url = f"https://ropresencetools.github.io/RobloxInvites/invite.html?placeId={place_id}&gameInstanceId={game_instance_id}"
         embed_title = f"{display_name} has joined a game!"
-        embed_desc = f"**Join {display_name} (@{username}) in** *{game}*{exclamation}\nTotal playtime for this game: {playtime_str}\n-# Place ID: {place_id}"
+        embed_desc = f"**Join {display_name} (@{username}) in** *{game}*{exclamation}\nTotal playtime for this game: {playtime_str}"
         embed_color = green
 
         custom_title = {}
@@ -148,11 +148,11 @@ class TrackerCore:
                 embed_title = f"{custom_title["title"].replace("{0}", display_name)[:-1]} in a new server!"
             else:
                 embed_title = f"{display_name} transferred servers!"
-            embed_desc = f"{display_name} (@{username}) has transferred to a different server in *{game}*{period}\nSession playtime: {playtime_str_current}\nTotal playtime for this game: {playtime_str}\n-# Place ID: {place_id}"
+            embed_desc = f"{display_name} (@{username}) has transferred to a different server in *{game}*{period}\nSession playtime: {playtime_str_current}\nTotal playtime for this game: {playtime_str}"
 
         if max_players == 1:
             join_embed_url = None
-            embed_desc = f"{display_name} (@{username}) is playing *{game}*{exclamation}\nHowever, you can't join them because the max server size is 1 player.\nTotal playtime for this game: {playtime_str}\n\n-# Place ID: {place_id}\n-# Game Instance ID: {game_instance_id}"
+            embed_desc = f"{display_name} (@{username}) is playing *{game}*{exclamation}\nHowever, you can't join them because the max server size is 1 player.\nTotal playtime for this game: {playtime_str}"
             if not await self.bot.cgt_manager.check_custom_title(guild, universe_id):
                 embed_color = orange
 
@@ -162,10 +162,32 @@ class TrackerCore:
             embed_desc = f"**{display_name} (@{username}) just joined:**"
             for user in joined:
                 embed_desc += f"\n- {user[0]} (@{user[1]})"
-            embed_desc += f"\n\nTotal playtime for this game: {playtime_str}\n**Join them** in *{game}* with the button below!\n-# Place ID: {place_id}"
-            
+            embed_desc += f"\n\nTotal playtime for this game: {playtime_str}\n**Join them** in *{game}* with the button below!"
+
         invite_channel = await self.bot.settings_manager.get_channel(guild, "invite")
-        await send_embed(self.bot, embed_title, embed_desc, embed_color, invite_channel, join_embed_url)
+        embed = discord.Embed(
+            title=embed_title,
+            description=embed_desc,
+            color=embed_color
+        )
+        embed.set_footer(
+            text=f"Place ID: {place_id}" + (f" ({game_instance_id})" if max_players == 1 else "")
+        )
+
+        thumbnail_url = await self.bot.api.get_avatar_headshot(user_id)
+        if thumbnail_url is not None:
+            embed.set_thumbnail(url=thumbnail_url)
+
+        view = discord.ui.View()
+        if join_embed_url is not None:
+            join_btn = discord.ui.Button(label="Join in Roblox", url=join_embed_url)
+            view.add_item(join_btn)
+
+        try:
+            channel = self.bot.get_channel(invite_channel)
+            await channel.send(embed=embed, view=view)
+        except:
+            pass
 
     async def create_invite_card(self, discord_user):
         user_id = await self.bot.user_manager.get_user_from_discord_id(discord_user)
@@ -208,7 +230,7 @@ class TrackerCore:
         embed_desc = f"Time played: {playtime_str}\nTotal playtime for this game: {playtime_str_2}"
 
         if type == "website":
-            embed_desc = f"{display_name} (@{username}) is currently on the Roblox website or transferring between servers.\nIt's also possible that Roblox's APIs are showing this message in error.\n\nTime played: {playtime_str}\nTotal playtime for this game: {playtime_str_2}"
+            embed_desc = f"{display_name} (@{username}) is currently on the Roblox website or transferring between servers.\n\nTime played: {playtime_str}\nTotal playtime for this game: {playtime_str_2}"
         
         if await self.bot.cgt_manager.check_custom_title(guild, universe_id):
             custom_title = await self.bot.cgt_manager.get_custom_title(guild, universe_id)
@@ -224,4 +246,21 @@ class TrackerCore:
                 embed_desc = f"{display_name} (@{username}) has left *{game}*{period}\n" + embed_desc
 
         invite_channel = await self.bot.settings_manager.get_channel(guild, "invite")
-        await send_embed(self.bot, embed_title, embed_desc, red, invite_channel)
+        embed = discord.Embed(
+            title=embed_title,
+            description=embed_desc,
+            color=red
+        )
+        embed.set_footer(
+            text=f"Place ID: {place_id}"
+        )
+
+        thumbnail_url = await self.bot.api.get_avatar_headshot(user_id)
+        if thumbnail_url is not None:
+            embed.set_thumbnail(url=thumbnail_url)
+
+        try:
+            channel = self.bot.get_channel(invite_channel)
+            await channel.send(embed=embed)
+        except:
+            pass
