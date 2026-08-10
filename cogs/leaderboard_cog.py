@@ -348,7 +348,7 @@ class LeaderboardCog(commands.Cog):
     ):
         try:
             await interaction.response.defer()
-            message_title, message_content = await interaction.client.leaderboard_manager.get_user_stats(interaction.guild, user_id)
+            message_title, message_content = await interaction.client.leaderboard_manager.get_user_stats(guild=interaction.guild, user_id=user_id, mode="server")
             embed = discord.Embed(
                 title=message_title,
                 description=message_content,

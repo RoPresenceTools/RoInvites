@@ -188,13 +188,14 @@ class LeaderboardManager:
             """, user_id)
 
     async def get_game_playtimes_paginated(self, guild, user_id, start):
-        guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
-        if not user_id in guild_user_ids:
-            items = [
-                "|ERROR|",
-                "That user is not in this server."
-            ]
-            return items
+        if guild != "NO_GUILD":
+            guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
+            if not user_id in guild_user_ids:
+                items = [
+                    "|ERROR|",
+                    "That user is not in this server."
+                ]
+                return items
 
         async with self.pool.acquire() as conn:
             rows = await conn.fetch(f"""
@@ -560,18 +561,24 @@ class LeaderboardManager:
 
             return items
 
-    async def get_user_stats(self, guild, user_id):
-        guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
-        if user_id not in guild_user_ids:
-            return ("Error", "That user is not in this server.")
+    async def get_user_stats(self, user_id=None, discord_user=None, guild=None, mode=None):
+        if mode == "server":
+            guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
+            if user_id not in guild_user_ids:
+                return ("Error", "That user is not in this server.")
+        else:
+            user_id = await self.bot.user_manager.get_user_from_discord_id(discord_user)
+            if user_id is None:
+                return ("Error", "You don't have a Roblox account associated with Roblox Invites.\nAdd one with `/user add`!")
 
         discord_user_id = await self.bot.user_manager.get_discord_id_from_user(user_id)
-        leaderboard_spot = await self.get_leaderboard_position(guild, user_id)
-        game_playtimes = await self.get_game_playtimes_paginated(guild, user_id, 0)
+        game_playtimes = await self.get_game_playtimes_paginated("NO_GUILD", user_id, 0)
 
-        snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
-        ls_leaderboard_spot = await self.get_ls_leaderboard_position(guild, user_id)
-        ls_game_playtimes = await self.get_ls_game_playtimes_paginated(guild, user_id, 0)
+        if mode == "server":
+            snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
+            leaderboard_spot = await self.get_leaderboard_position(guild, user_id)
+            ls_leaderboard_spot = await self.get_ls_leaderboard_position(guild, user_id)
+            ls_game_playtimes = await self.get_ls_game_playtimes_paginated(guild, user_id, 0)
 
         total = await self.bot.stat_manager.get_total_playtime(user_id)
         display_name = await self.bot.user_manager.get_display_name(user_id)
@@ -587,57 +594,28 @@ class LeaderboardManager:
         message_content += "\n\n**Your Playtimes:**"
         message_content += f"\nOverall Playtime: {playtime}"
 
-        message_content += "\n\n**Your Standings:**"
-        message_content += f"\nOverall Leaderboard Position: #{leaderboard_spot}"
-        message_content += f"\nSince-Last-Snapshot Leaderboard Position: #{ls_leaderboard_spot}"
+        if mode == "server":
+            message_content += "\n\n**Your Standings:**"
+            message_content += f"\nOverall Leaderboard Position: #{leaderboard_spot}"
+            message_content += f"\nSince-Last-Snapshot Leaderboard Position: #{ls_leaderboard_spot}"
 
-        overall_games = 0
-        message_content += "\n\n**Your Top 5 Games Overall:**"
-        for i, item in enumerate(game_playtimes[:5]):
-            message_content += f"\n{i}. {item}"
-            overall_games += 1
-        if overall_games == 0:
-            message_content += "\nYou haven't played any games yet."
-
-        ls_games = 0
-        message_content += f"\n\n**Your Top 5 Games since Last Snapshot:**"
-        if snapshot_id is not None:
-            for i, item in enumerate(ls_game_playtimes[:5]):
+        games_to_list = 5 if mode == "server" else 10
+        message_content += f"\n\n**Your Top {games_to_list} Games Overall:**"
+        if "|ERROR|" not in game_playtimes[:games_to_list]:
+            for i, item in enumerate(game_playtimes[:games_to_list]):
                 message_content += f"\n{i}. {item}"
-                ls_games += 1
         else:
-            message_content += "\nNo snapshots have been saved."
-        if ls_games == 0 and snapshot_id != None:
-            message_content += "\nYou haven't played any games since the last snapshot was taken."
+            message_content += f"\n{game_playtimes[:games_to_list][1]}"
 
-        return (message_title, message_content)
-
-    async def get_user_stats_dms(self, discord_user):
-        user_id = await self.bot.user_manager.get_user_from_discord_id(discord_user)
-
-        discord_user_id = await self.bot.user_manager.get_discord_id_from_user(user_id)
-        game_playtimes = await self.get_game_playtimes_paginated(user_id, 0)
-
-        total = await self.bot.stat_manager.get_total_playtime(user_id)
-        display_name = await self.bot.user_manager.get_display_name(user_id)
-        username = await self.bot.user_manager.get_username(user_id)
-
-        message_title = f"{display_name}'s profile"
-
-        message_content = "**Your Info:**"
-        message_content += f"\nRoblox username: @{username}"
-        message_content += f"\nDiscord username: <@{discord_user_id}>"
-
-        playtime = await self.bot.stat_manager.get_playtime_str_minimal(total)
-        message_content += f"\n\n**Your Playtimes:**"
-        message_content += f"\nOverall Playtime: {playtime}"
-
-        overall_games = 0
-        message_content += f"\n\n**Your Top 10 Games Overall:**"
-        for i, item in enumerate(game_playtimes, start=1):
-            message_content += f"\n{i}. {item}"
-            overall_games += 1
-        if overall_games == 0:
-            message_content += "\nYou haven't played any games yet."
+        if mode == "server":
+            message_content += f"\n\n**Your Top 5 Games since Last Snapshot:**"
+            if snapshot_id is not None:
+                if not "|ERROR|" in ls_game_playtimes[:5]:
+                    for i, item in enumerate(ls_game_playtimes[:5]):
+                        message_content += f"\n{i}. {item}"
+                else:
+                    message_content += "\nYou haven't played any games since the last snapshot was taken."
+            else:
+                message_content += "\nNo snapshots have been saved."
 
         return (message_title, message_content)
