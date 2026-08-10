@@ -63,24 +63,20 @@ class UserCog(commands.Cog):
         self, 
         interaction: discord.Interaction
     ):
-        try:
-            await interaction.response.defer()
-            message_title, message_content = await interaction.client.leaderboard_manager.get_user_stats(discord_user=interaction.user, mode="user")
-            embed = discord.Embed(
-                title=message_title,
-                description=message_content,
-                color=discord.Color.dark_gold() if message_title != "Error" else red
-            )
+        await interaction.response.defer()
+        message_title, message_content = await interaction.client.leaderboard_manager.get_user_stats(discord_user=interaction.user, mode="user")
+        embed = discord.Embed(
+            title=message_title,
+            description=message_content,
+            color=discord.Color.dark_gold() if message_title != "Error" else red
+        )
 
-            user_id = await self.bot.user_manager.get_user_from_discord_id(interaction.user)
-            thumbnail_url = await self.bot.api.get_avatar_headshot(user_id)
-            if thumbnail_url is not None:
-                embed.set_thumbnail(url=thumbnail_url)
+        user_id = await self.bot.user_manager.get_user_from_discord_id(interaction.user)
+        thumbnail_url = await self.bot.api.get_avatar_headshot(user_id)
+        if thumbnail_url is not None:
+            embed.set_thumbnail(url=thumbnail_url)
 
-            await interaction.followup.send(embed=embed)
-        except:
-            import traceback
-            traceback.print_exc()
+        await interaction.followup.send(embed=embed)
 
     @user.command(name="freeze", description="Freezes your Roblox Invites account")
     async def freeze(

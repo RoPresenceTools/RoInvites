@@ -6,7 +6,7 @@ from styling.ri_colors import *
 
 class PaginatedLeaderboard(discord.ui.View):
     def __init__(self, bot, author_id, pagin_func, pagin_func_args, entries, title="", user_id=None, place_id=None, per_page=10):
-        super().__init__(timeout=120) # testing | should be 120
+        super().__init__(timeout=120)
 
         self.bot = bot
         self.author_id = author_id
@@ -311,7 +311,7 @@ class LeaderboardCog(commands.Cog):
             pagin_func=self.bot.leaderboard_manager.get_game_playtimes_breakdown_paginated,
             pagin_func_args=[interaction.guild, place_id],
             entries=entries,
-            title="All-Time Playtime Leaderboard for {game_name}",
+            title="All-Time Leaderboard for {game_name}",
             place_id=place_id,
             per_page=10
         )
@@ -332,7 +332,7 @@ class LeaderboardCog(commands.Cog):
             pagin_func=self.bot.leaderboard_manager.get_ls_game_playtimes_breakdown_paginated,
             pagin_func_args=[interaction.guild, place_id],
             entries=entries,
-            title="Since-Last-Snapshot Playtime Leaderboard for {game_name}",
+            title="Since-Last-Snapshot Leaderboard for {game_name}",
             place_id=place_id,
             per_page=10
         )
@@ -346,23 +346,19 @@ class LeaderboardCog(commands.Cog):
         interaction: discord.Interaction, 
         user_id: int
     ):
-        try:
-            await interaction.response.defer()
-            message_title, message_content = await interaction.client.leaderboard_manager.get_user_stats(guild=interaction.guild, user_id=user_id, mode="server")
-            embed = discord.Embed(
-                title=message_title,
-                description=message_content,
-                color=discord.Color.dark_gold() if message_title != "Error" else red
-            )
+        await interaction.response.defer()
+        message_title, message_content = await interaction.client.leaderboard_manager.get_user_stats(guild=interaction.guild, user_id=user_id, mode="server")
+        embed = discord.Embed(
+            title=message_title,
+            description=message_content,
+            color=discord.Color.dark_gold() if message_title != "Error" else red
+        )
 
-            if message_title != "Error":
-                thumbnail_url = await interaction.client.api.get_avatar_headshot(user_id)
-                if thumbnail_url is not None:
-                    embed.set_thumbnail(url=thumbnail_url)
-            await interaction.followup.send(embed=embed)
-        except:
-            import traceback
-            traceback.print_exc()
+        if message_title != "Error":
+            thumbnail_url = await interaction.client.api.get_avatar_headshot(user_id)
+            if thumbnail_url is not None:
+                embed.set_thumbnail(url=thumbnail_url)
+        await interaction.followup.send(embed=embed)
 
     @leaderboard.command(name="save", description="Saves a snapshot of user data for weekly leaderboards")
     @app_commands.default_permissions(manage_guild=True)
