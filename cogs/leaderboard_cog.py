@@ -25,11 +25,11 @@ class PaginatedLeaderboard(discord.ui.View):
         self.update_buttons()
 
     async def on_timeout(self):
-        self.refresh.disabled = True
         self.first.disabled = True
         self.previous.disabled = True
         self.next.disabled = True
         self.last.disabled = True
+        self.refresh.disabled = True
 
         timeout_embed = discord.Embed(
             title="Timed Out",
@@ -94,16 +94,6 @@ class PaginatedLeaderboard(discord.ui.View):
         self.next.disabled = self.page >= self.max_page
         self.last.disabled = self.page >= self.max_page
 
-    @discord.ui.button(label="Refresh", style=discord.ButtonStyle.primary)
-    async def refresh(self, interaction, button):
-        if interaction.user.id == self.author_id:
-            await interaction.response.edit_message(
-                embed=await self.get_embed(),
-                view=self
-            )
-        else:
-            await interaction.response.send_message("You're not the sender of this message!", ephemeral=True)
-
     @discord.ui.button(label="<<", style=discord.ButtonStyle.secondary)
     async def first(self, interaction, button):
         if interaction.user.id == self.author_id:
@@ -149,6 +139,16 @@ class PaginatedLeaderboard(discord.ui.View):
             self.page = self.max_page
             self.update_buttons()
 
+            await interaction.response.edit_message(
+                embed=await self.get_embed(),
+                view=self
+            )
+        else:
+            await interaction.response.send_message("You're not the sender of this message!", ephemeral=True)
+
+    @discord.ui.button(label="Refresh", style=discord.ButtonStyle.primary)
+    async def refresh(self, interaction, button):
+        if interaction.user.id == self.author_id:
             await interaction.response.edit_message(
                 embed=await self.get_embed(),
                 view=self
@@ -228,24 +228,20 @@ class LeaderboardCog(commands.Cog):
         self,
         interaction: discord.Interaction
     ):
-        try:
-            entries = await self.bot.leaderboard_manager.get_entries_ls_total_playtimes(interaction.guild)
-            view = PaginatedLeaderboard(
-                bot=self.bot,
-                author_id=interaction.user.id,
-                pagin_func=self.bot.leaderboard_manager.get_ls_total_playtimes,
-                total_func=self.bot.leaderboard_manager.get_ls_total_playtimes_total,
-                pagin_func_args=[interaction.guild],
-                entries=entries,
-                title="Since-Last-Snapshot Playtime Leaderboard",
-                user_id=None,
-                per_page=10
-            )
-            await interaction.response.send_message(embed=await view.get_embed(), view=view)
-            view.message = await interaction.original_response()
-        except:
-            import traceback
-            traceback.print_exc()
+        entries = await self.bot.leaderboard_manager.get_entries_ls_total_playtimes(interaction.guild)
+        view = PaginatedLeaderboard(
+            bot=self.bot,
+            author_id=interaction.user.id,
+            pagin_func=self.bot.leaderboard_manager.get_ls_total_playtimes,
+            total_func=self.bot.leaderboard_manager.get_ls_total_playtimes_total,
+            pagin_func_args=[interaction.guild],
+            entries=entries,
+            title="Since-Last-Snapshot Playtime Leaderboard",
+            user_id=None,
+            per_page=10
+        )
+        await interaction.response.send_message(embed=await view.get_embed(), view=view)
+        view.message = await interaction.original_response()
 
     @breakdown_game.command(name="all", description="Sends this server's all-time game playtime leaderboard")
     async def get_all_game_paginated(
