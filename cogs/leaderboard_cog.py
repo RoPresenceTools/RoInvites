@@ -13,12 +13,13 @@ class PaginatedLeaderboard(discord.ui.View):
         self.user_id = user_id
         self.place_id = place_id
         self.per_page = per_page
-        self.page = 0
-        self.max_page = max(0, math.ceil(entries / 10) - 1)
         self.title = title
         self.pagin_func = pagin_func
         self.total_func = total_func
         self.pagin_func_args = pagin_func_args
+        self.max_page = max(0, math.ceil(entries / 10) - 1)
+
+        self.page = 0
         self.thumbnail_url = None
         self.message = None
 
