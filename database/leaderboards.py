@@ -168,6 +168,9 @@ class LeaderboardManager:
             for row in rows:
                 name = await self.bot.user_manager.get_display_name(row["user_id"])
                 items.append(f"{name} - {(row["total_playtime"] / 3600):.2f}h")
+            if len(rows) == 0:
+                items.append("|NONE|")
+                items.append("No one has played any game since the last snapshot.")
 
             return items
 
@@ -270,6 +273,9 @@ class LeaderboardManager:
             for row in rows:
                 name = await self.bot.api.get_game_name(row["place_id"])
                 items.append(f"{name} - {(row["playtime"] / 3600):.2f}h")
+            if len(rows) == 0:
+                items.append("|NONE|")
+                items.append("This user hasn't played any games since the last snapshot.")
 
             return items
 
@@ -290,6 +296,7 @@ class LeaderboardManager:
                         ON cp.user_id = g.user_id
                         AND cp.place_id = g.place_id
                     WHERE g.user_id = ANY($1)
+                    AND playtime > 0
                     GROUP BY g.place_id
                 ) games_ranked
             """, guild_user_ids)
@@ -314,6 +321,7 @@ class LeaderboardManager:
                         ON cp.user_id = g.user_id
                         AND cp.place_id = g.place_id
                     WHERE g.user_id = ANY($1)
+                    AND playtime > 0
                     GROUP BY g.place_id
                 ) games_ranked
                 LIMIT 10
@@ -324,6 +332,9 @@ class LeaderboardManager:
             for row in rows:
                 name = await self.bot.api.get_game_name(row["place_id"])
                 items.append(f"{name} - {(row["playtime"] / 3600):.2f}h")
+            if len(rows) == 0:
+                items.append("|NONE|")
+                items.append("No one has played any games yet.")
 
             return items
 
@@ -389,6 +400,9 @@ class LeaderboardManager:
             for row in rows:
                 name = await self.bot.api.get_game_name(row["place_id"])
                 items.append(f"{name} - {(row["playtime"] / 3600):.2f}h")
+            if len(rows) == 0:
+                items.append("|NONE|")
+                items.append("No one has played any games since the last snapshot.")
 
             return items
 
@@ -442,6 +456,9 @@ class LeaderboardManager:
             for row in rows:
                 name = await self.bot.user_manager.get_display_name(row["user_id"])
                 items.append(f"{name} - {(row["playtime"] / 3600):.2f}h")
+            if len(rows) == 0:
+                items.append("|NONE|")
+                items.append("No one has played this game yet.")
 
             return items
 
@@ -504,50 +521,11 @@ class LeaderboardManager:
             for row in rows:
                 name = await self.bot.user_manager.get_display_name(row["user_id"])
                 items.append(f"{name} - {(row["playtime"] / 3600):.2f}h")
+            if len(rows) == 0:
+                items.append("|NONE|")
+                items.append("No one has played this game since the last snapshot.")
 
             return items
-
-    async def get_user_leaderboard(self, total_playtimes, agg_game_playtimes):
-        players = 0
-        total = sum([playtime["total_playtime"] for playtime in total_playtimes])
-
-        message_content = f"\n**Total Server Playtime:** {total / 3600:.2f}h"
-        message_content += f"\n**Playtime for Top 10 Users:**"
-        for playtime in total_playtimes[:10]:
-            display_name = await self.bot.user_manager.get_display_name(playtime["user_id"])
-            message_content += f"\n[#{playtime["rank"]}] {display_name} ({playtime["total_playtime"] / 3600:.2f}h)"
-
-        message_content += f"\n\n**Playtime for Top 10 Games:**"
-        for game in agg_game_playtimes[:10]:
-            if game["playtime"] > 0:
-                await self.api.cache_id(game["place_id"])
-                name = await self.api.get_game_name(game["place_id"])
-                message_content += f"\n[#{game["rank"]}] {name}: {game["playtime"] / 3600:.2f}h"
-                players += 1
-        if players == 0:
-            message_content += "\nNo one has played any games yet."
-        
-        return message_content
-
-    async def get_game_leaderboard(self, root_place_id, game_playtimes_breakdown):
-        players = 0
-        total = sum([playtime["playtime"] for playtime in game_playtimes_breakdown])
-
-        await self.api.cache_id(root_place_id)
-        name = await self.api.get_game_name(root_place_id)
-        message_title = f"Leaderboard for {name}"
-        message_content = f"\n**Total Server Playtime:** {total / 3600:.2f}h"
-
-        message_content += f"\n**Playtime for Top 20 Users:**"
-        for playtime in game_playtimes_breakdown[:20]:
-            if playtime["playtime"] > 0:
-                display_name = await self.bot.user_manager.get_display_name(playtime["user_id"])
-                message_content += f"\n[#{playtime["rank"]}] {display_name} ({playtime["playtime"] / 3600:.2f}h)"
-                players += 1
-        if players == 0:
-            message_content += "\nNo one has played this game yet."
-        
-        return (message_title, message_content)
 
     async def get_user_stats(self, guild, user_id):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
@@ -581,24 +559,18 @@ class LeaderboardManager:
 
         overall_games = 0
         message_content += "\n\n**Your Top 5 Games Overall:**"
-        for game in game_playtimes[:5]:
-            if game["playtime"] > 0:
-                await self.api.cache_id(game["place_id"])
-                name = await self.api.get_game_name(game["place_id"])
-                message_content += f"\n[#{game["rank"]}] {name}: {game["playtime"] / 3600:.2f}h"
-                overall_games += 1
+        for i, item in enumerate(game_playtimes[:5]):
+            message_content += f"\n{i}. {item}"
+            overall_games += 1
         if overall_games == 0:
             message_content += "\nYou haven't played any games yet."
 
         ls_games = 0
         message_content += f"\n\n**Your Top 5 Games since Last Snapshot:**"
         if snapshot_id != None:
-            for game in ls_game_playtimes[:5]:
-                if game["playtime"] > 0:
-                    await self.api.cache_id(game["place_id"])
-                    name = await self.api.get_game_name(game["place_id"])
-                    message_content += f"\n[#{game["rank"]}] {name}: {game["playtime"] / 3600:.2f}h"
-                    ls_games += 1
+            for i, item in enumerate(ls_game_playtimes[:5]):
+                message_content += f"\n{i}. {item}"
+                ls_games += 1
         else:
             message_content += "\nNo snapshots have been saved."
         if ls_games == 0 and snapshot_id != None:
@@ -627,12 +599,9 @@ class LeaderboardManager:
 
         overall_games = 0
         message_content += f"\n\n**Your Top 10 Games Overall:**"
-        for game in game_playtimes[:10]:
-            if game["playtime"] > 0:
-                await self.api.cache_id(game["place_id"])
-                name = await self.api.get_game_name(game["place_id"])
-                message_content += f"\n[#{game["rank"]}] {name}: {game["playtime"] / 3600:.2f}h"
-                overall_games += 1
+        for i, item in enumerate(game_playtimes, start=1):
+            message_content += f"\n{i}. {item}"
+            overall_games += 1
         if overall_games == 0:
             message_content += "\nYou haven't played any games yet."
 

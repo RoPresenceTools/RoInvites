@@ -14,7 +14,7 @@ class PaginatedLeaderboard(discord.ui.View):
         self.place_id = place_id
         self.per_page = per_page
         self.page = 0
-        self.max_page = math.floor(entries / 10)
+        self.max_page = max(0, math.ceil(entries / 10) - 1)
         self.title = title
         self.pagin_func = pagin_func
         self.pagin_func_args = pagin_func_args
@@ -31,15 +31,22 @@ class PaginatedLeaderboard(discord.ui.View):
 
         start = self.page * self.per_page
         items = await self.pagin_func(*self.pagin_func_args, start)
+        if not "|NONE|" in items:
+            embed = discord.Embed(
+                title=self.title,
+                description="\n".join(
+                    f"{start + i}. {item}"
+                    for i, item in enumerate(items, start=1)
+                ),
+                color=discord.Color.dark_gold()
+            )
+        else:
+            embed = discord.Embed(
+                title="Error",
+                description=items[1],
+                color=red
+            )
 
-        embed = discord.Embed(
-            title=self.title,
-            description="\n".join(
-                f"{start + i}. {item}"
-                for i, item in enumerate(items, start=1)
-            ),
-            color=discord.Color.dark_gold()
-        )
         embed.set_footer(
             text=f"Page {self.page + 1}/{self.max_page + 1}"
         )
