@@ -126,8 +126,8 @@ class TrackerCore:
 
         display_name = await self.bot.user_manager.get_display_name(user_id)
         username = await self.bot.user_manager.get_username(user_id)
-        playtime_str = await self.bot.stat_manager.get_playtime_str(user_id, place_id, "both")
-        playtime_str_current = await self.bot.stat_manager.get_playtime_str(user_id, place_id, "current")
+        playtime_str = await self.bot.stat_manager.get_playtime_str(user_id=user_id, place_id=place_id, playtime_type="both")
+        playtime_str_current = await self.bot.stat_manager.get_playtime_str(user_id=user_id, place_id=place_id, playtime_type="current")
 
         exclamation = "" if game_ends_in_punctuation(game) else "!"
         period = "" if game_ends_in_punctuation(game) else "."
@@ -217,8 +217,8 @@ class TrackerCore:
 
         display_name = await self.bot.user_manager.get_display_name(user_id)
         username = await self.bot.user_manager.get_username(user_id)
-        playtime_str = await self.bot.stat_manager.get_playtime_str(user_id, place_id, "current")
-        playtime_str_2 = await self.bot.stat_manager.get_playtime_str(user_id, place_id, "both")
+        playtime_str = await self.bot.stat_manager.get_playtime_str(user_id=user_id, place_id=place_id, playtime_type="current")
+        playtime_str_2 = await self.bot.stat_manager.get_playtime_str(user_id=user_id, place_id=place_id, playtime_type="both")
         universe_id = await self.bot.api.get_universe_id(place_id)
         game = await self.bot.api.get_game_name(place_id)
         period = "" if game_ends_in_punctuation(game) else "."

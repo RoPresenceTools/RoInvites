@@ -159,29 +159,17 @@ class StatManager:
                 WHERE user_id = $1
             """, user_id)
 
-    async def get_playtime_str(self, user_id, place_id, playtime_type):
-        playtime = 0
-        root_place_id = await self.api.get_root_place_id(place_id)
-
-        if playtime_type == "both":
-            playtime += await self.get_game_playtime(user_id, root_place_id)
-        if playtime_type in ["current", "both"]:
-            playtime += await self.get_current_playtime_placeid(user_id, root_place_id)
+    async def get_playtime_str(self, user_id=None, place_id=None, playtime_type=None, playtime=0):
+        if playtime == 0 and not None in (user_id, place_id, playtime_type):
+            root_place_id = await self.api.get_root_place_id(place_id)
+            if playtime_type == "both":
+                playtime += await self.get_game_playtime(user_id, root_place_id)
+            if playtime_type in ["current", "both"]:
+                playtime += await self.get_current_playtime_placeid(user_id, root_place_id)
 
         hours = round(playtime // 3600)
         minutes = round((playtime % 3600) // 60)
-        seconds = playtime % 60
-        if hours > 0:
-            return f"{hours}h {minutes}m {seconds}s"
-        elif minutes > 0:
-            return f"{minutes}m {seconds}s"
-        else:
-            return f"{seconds}s"
-
-    async def get_playtime_str_minimal(self, playtime):
-        hours = round(playtime // 3600)
-        minutes = round((playtime % 3600) // 60)
-        seconds = playtime % 60
+        seconds = round(playtime % 60)
         if hours > 0:
             return f"{hours}h {minutes}m {seconds}s"
         elif minutes > 0:

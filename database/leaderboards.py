@@ -109,7 +109,7 @@ class LeaderboardManager:
             items = []
             for row in rows:
                 name = await self.bot.user_manager.get_display_name(row["user_id"])
-                playtime = await self.bot.stat_manager.get_playtime_str_minimal(row["total_playtime"])
+                playtime = await self.bot.stat_manager.get_playtime_str(playtime=row["total_playtime"])
                 items.append(f"{name} - {playtime}")
                 # items.append(f"{name} - {(row["total_playtime"] / 3600):.2f}h")
                 
@@ -167,7 +167,7 @@ class LeaderboardManager:
             items = []
             for row in rows:
                 name = await self.bot.user_manager.get_display_name(row["user_id"])
-                playtime = await self.bot.stat_manager.get_playtime_str_minimal(row["total_playtime"])
+                playtime = await self.bot.stat_manager.get_playtime_str(playtime=row["total_playtime"])
                 items.append(f"{name} - {playtime}")
             if len(rows) == 0:
                 items.append("|ERROR|")
@@ -223,7 +223,7 @@ class LeaderboardManager:
             items = []
             for row in rows:
                 name = await self.bot.api.get_game_name(row["place_id"])
-                playtime = await self.bot.stat_manager.get_playtime_str_minimal(row["playtime"])
+                playtime = await self.bot.stat_manager.get_playtime_str(playtime=row["playtime"])
                 items.append(f"{name} - {playtime}")
 
             return items
@@ -299,7 +299,7 @@ class LeaderboardManager:
             items = []
             for row in rows:
                 name = await self.bot.api.get_game_name(row["place_id"])
-                playtime = await self.bot.stat_manager.get_playtime_str_minimal(row["playtime"])
+                playtime = await self.bot.stat_manager.get_playtime_str(playtime=row["playtime"])
                 items.append(f"{name} - {playtime}")
             if len(rows) == 0:
                 items.append("|ERROR|")
@@ -359,7 +359,7 @@ class LeaderboardManager:
             items = []
             for row in rows:
                 name = await self.bot.api.get_game_name(row["place_id"])
-                playtime = await self.bot.stat_manager.get_playtime_str_minimal(row["playtime"])
+                playtime = await self.bot.stat_manager.get_playtime_str(playtime=row["playtime"])
                 items.append(f"{name} - {playtime}")
             if len(rows) == 0:
                 items.append("|ERROR|")
@@ -427,7 +427,7 @@ class LeaderboardManager:
             items = []
             for row in rows:
                 name = await self.bot.api.get_game_name(row["place_id"])
-                playtime = await self.bot.stat_manager.get_playtime_str_minimal(row["playtime"])
+                playtime = await self.bot.stat_manager.get_playtime_str(playtime=row["playtime"])
                 items.append(f"{name} - {playtime}")
             if len(rows) == 0:
                 items.append("|ERROR|")
@@ -484,7 +484,7 @@ class LeaderboardManager:
             items = []
             for row in rows:
                 name = await self.bot.user_manager.get_display_name(row["user_id"])
-                playtime = await self.bot.stat_manager.get_playtime_str_minimal(row["playtime"])
+                playtime = await self.bot.stat_manager.get_playtime_str(playtime=row["playtime"])
                 items.append(f"{name} - {playtime}")
             if len(rows) == 0:
                 game_name = await self.bot.api.get_game_name(place_id)
@@ -552,7 +552,7 @@ class LeaderboardManager:
             items = []
             for row in rows:
                 name = await self.bot.user_manager.get_display_name(row["user_id"])
-                playtime = await self.bot.stat_manager.get_playtime_str_minimal(row["playtime"])
+                playtime = await self.bot.stat_manager.get_playtime_str(playtime=row["playtime"])
                 items.append(f"{name} - {playtime}")
             if len(rows) == 0:
                 game_name = await self.bot.api.get_game_name(place_id)
@@ -590,7 +590,7 @@ class LeaderboardManager:
         message_content += f"\nRoblox username: @{username}"
         message_content += f"\nDiscord username: <@{discord_user_id}>"
 
-        playtime = await self.bot.stat_manager.get_playtime_str_minimal(total)
+        playtime = await self.bot.stat_manager.get_playtime_str(playtime=total)
         message_content += "\n\n**Your Playtimes:**"
         message_content += f"\nOverall Playtime: {playtime}"
 
