@@ -64,23 +64,19 @@ class ServerCog(commands.Cog):
         interaction: discord.Interaction, 
         user_id: int
     ):
-        try:
-            await interaction.response.defer()
-            message_title, message_content = await interaction.client.leaderboard_manager.get_user_stats(interaction.guild, user_id)
-            embed = discord.Embed(
-                title=message_title,
-                description=message_content,
-                color=discord.Color.dark_gold() if message_title != "Error" else red
-            )
+        await interaction.response.defer()
+        message_title, message_content = await interaction.client.leaderboard_manager.get_user_stats(interaction.guild, user_id)
+        embed = discord.Embed(
+            title=message_title,
+            description=message_content,
+            color=discord.Color.dark_gold() if message_title != "Error" else red
+        )
 
-            if message_title != "Error":
-                thumbnail_url = await interaction.client.api.get_avatar_headshot(user_id)
-                if thumbnail_url is not None:
-                    embed.set_thumbnail(url=thumbnail_url)
-            await interaction.followup.send(embed=embed)
-        except:
-            import traceback
-            traceback.print_exc()
+        if message_title != "Error":
+            thumbnail_url = await interaction.client.api.get_avatar_headshot(user_id)
+            if thumbnail_url is not None:
+                embed.set_thumbnail(url=thumbnail_url)
+        await interaction.followup.send(embed=embed)
 
     @server.command(name="pause_invites", description="Pauses sending invites pertaining to your account in the current server")
     async def pause_invites(

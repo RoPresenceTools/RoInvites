@@ -35,7 +35,6 @@ class PaginatedLeaderboard(discord.ui.View):
                 self.thumbnail_url = await self.bot.api.get_game_icon(self.place_id)
                 game_name = await self.bot.api.get_game_name(self.place_id)
                 self.title = self.title.replace("{game_name}", game_name)
-            print("fetched thumbnail url")
 
         if not "|ERROR|" in items:
             embed = discord.Embed(
