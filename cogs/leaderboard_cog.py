@@ -6,7 +6,7 @@ from styling.ri_colors import *
 
 class PaginatedLeaderboard(discord.ui.View):
     def __init__(self, bot, author_id, pagin_func, pagin_func_args, entries, title="", user_id=None, place_id=None, per_page=10):
-        super().__init__(timeout=120)
+        super().__init__(timeout=120) # testing | should be 120
 
         self.bot = bot
         self.author_id = author_id
@@ -19,6 +19,7 @@ class PaginatedLeaderboard(discord.ui.View):
         self.pagin_func = pagin_func
         self.pagin_func_args = pagin_func_args
         self.thumbnail_url = None
+        self.message = None
 
         self.update_buttons()
 
@@ -27,6 +28,11 @@ class PaginatedLeaderboard(discord.ui.View):
         self.previous.disabled = True
         self.next.disabled = True
         self.last.disabled = True
+
+        await self.message.edit(
+            embed=await self.get_embed(),
+            view=self
+        )
 
     async def get_embed(self):
         start = self.page * self.per_page
@@ -190,6 +196,7 @@ class LeaderboardCog(commands.Cog):
             per_page=10
         )
         await interaction.response.send_message(embed=await view.get_embed(), view=view)
+        view.message = await interaction.original_response()
 
     @breakdown_user.command(name="snapshot", description="Sends this server's playtime leaderboard since last snapshot")
     async def get_all_ls_paginated(
@@ -208,6 +215,7 @@ class LeaderboardCog(commands.Cog):
             per_page=10
         )
         await interaction.response.send_message(embed=await view.get_embed(), view=view)
+        view.message = await interaction.original_response()
 
     @breakdown_game.command(name="all", description="Sends this server's all-time game playtime leaderboard")
     async def get_all_game_paginated(
@@ -226,6 +234,7 @@ class LeaderboardCog(commands.Cog):
             per_page=10
         )
         await interaction.response.send_message(embed=await view.get_embed(), view=view)
+        view.message = await interaction.original_response()
 
     @breakdown_game.command(name="snapshot", description="Sends this server's game playtime leaderboard since last snapshot")
     async def get_all_ls_game_paginated(
@@ -244,6 +253,7 @@ class LeaderboardCog(commands.Cog):
             per_page=10
         )
         await interaction.response.send_message(embed=await view.get_embed(), view=view)
+        view.message = await interaction.original_response()
 
     @user.command(name="all", description="Shows a user's statistics in a given server for all games")
     @app_commands.autocomplete(user_id=user_autocomplete)
@@ -264,6 +274,7 @@ class LeaderboardCog(commands.Cog):
             per_page=10
         )
         await interaction.response.send_message(embed=await view.get_embed(), view=view)
+        view.message = await interaction.original_response()
 
     @user.command(name="snapshot", description="Shows a user's statistics in a given server for all games since last snapshot")
     @app_commands.autocomplete(user_id=user_autocomplete)
@@ -284,6 +295,7 @@ class LeaderboardCog(commands.Cog):
             per_page=10
         )
         await interaction.response.send_message(embed=await view.get_embed(), view=view)
+        view.message = await interaction.original_response()
 
     @game.command(name="all", description="Sends this server's all-time playtime leaderboard for a game")
     @app_commands.autocomplete(place_id=all_games_autocomplete)
@@ -304,6 +316,7 @@ class LeaderboardCog(commands.Cog):
             per_page=10
         )
         await interaction.response.send_message(embed=await view.get_embed(), view=view)
+        view.message = await interaction.original_response()
 
     @game.command(name="snapshot", description="Sends this server's playtime leaderboard for a game since the last saved snapshot")
     @app_commands.autocomplete(place_id=all_games_autocomplete)
@@ -324,6 +337,7 @@ class LeaderboardCog(commands.Cog):
             per_page=10
         )
         await interaction.response.send_message(embed=await view.get_embed(), view=view)
+        view.message = await interaction.original_response()
 
     @leaderboard.command(name="save", description="Saves a snapshot of user data for weekly leaderboards")
     @app_commands.default_permissions(manage_guild=True)
