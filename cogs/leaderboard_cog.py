@@ -22,6 +22,12 @@ class PaginatedLeaderboard(discord.ui.View):
 
         self.update_buttons()
 
+    async def on_timeout(self):
+        self.first.disabled = True
+        self.previous.disabled = True
+        self.next.disabled = True
+        self.last.disabled = True
+
     async def get_embed(self):
         start = self.page * self.per_page
         items = await self.pagin_func(*self.pagin_func_args, start)
