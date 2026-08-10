@@ -109,8 +109,10 @@ class LeaderboardManager:
             items = []
             for row in rows:
                 name = await self.bot.user_manager.get_display_name(row["user_id"])
-                items.append(f"{name} - {(row["total_playtime"] / 3600):.2f}h")
-
+                playtime = await self.bot.stat_manager.get_playtime_str_minimal(row["total_playtime"])
+                items.append(f"{name} - {playtime}")
+                # items.append(f"{name} - {(row["total_playtime"] / 3600):.2f}h")
+                
             return items
 
     async def get_entries_ls_total_playtimes(self, guild):
@@ -165,7 +167,8 @@ class LeaderboardManager:
             items = []
             for row in rows:
                 name = await self.bot.user_manager.get_display_name(row["user_id"])
-                items.append(f"{name} - {(row["total_playtime"] / 3600):.2f}h")
+                playtime = await self.bot.stat_manager.get_playtime_str_minimal(row["total_playtime"])
+                items.append(f"{name} - {playtime}")
             if len(rows) == 0:
                 items.append("|ERROR|")
                 items.append("No one has played any game since the last snapshot.")
@@ -219,7 +222,7 @@ class LeaderboardManager:
             items = []
             for row in rows:
                 name = await self.bot.api.get_game_name(row["place_id"])
-                items.append(f"{name} - {(row["playtime"] / 3600):.2f}h")
+                items.append(f"{name} - {(row["playtime"] / 3600):.2f}")
 
             return items
 
@@ -294,7 +297,8 @@ class LeaderboardManager:
             items = []
             for row in rows:
                 name = await self.bot.api.get_game_name(row["place_id"])
-                items.append(f"{name} - {(row["playtime"] / 3600):.2f}h")
+                playtime = await self.bot.stat_manager.get_playtime_str_minimal(row["playtime"])
+                items.append(f"{name} - {playtime}")
             if len(rows) == 0:
                 items.append("|ERROR|")
                 items.append("This user hasn't played any games since the last snapshot.")
@@ -353,7 +357,8 @@ class LeaderboardManager:
             items = []
             for row in rows:
                 name = await self.bot.api.get_game_name(row["place_id"])
-                items.append(f"{name} - {(row["playtime"] / 3600):.2f}h")
+                playtime = await self.bot.stat_manager.get_playtime_str_minimal(row["playtime"])
+                items.append(f"{name} - {playtime}")
             if len(rows) == 0:
                 items.append("|ERROR|")
                 items.append("No one has played any games yet.")
@@ -417,11 +422,11 @@ class LeaderboardManager:
                 OFFSET {start}
             """, snapshot_id)
 
-
             items = []
             for row in rows:
                 name = await self.bot.api.get_game_name(row["place_id"])
-                items.append(f"{name} - {(row["playtime"] / 3600):.2f}h")
+                playtime = await self.bot.stat_manager.get_playtime_str_minimal(row["playtime"])
+                items.append(f"{name} - {playtime}")
             if len(rows) == 0:
                 items.append("|ERROR|")
                 items.append("No one has played any games since the last snapshot.")
@@ -477,7 +482,8 @@ class LeaderboardManager:
             items = []
             for row in rows:
                 name = await self.bot.user_manager.get_display_name(row["user_id"])
-                items.append(f"{name} - {(row["playtime"] / 3600):.2f}h")
+                playtime = await self.bot.stat_manager.get_playtime_str_minimal(row["playtime"])
+                items.append(f"{name} - {playtime}")
             if len(rows) == 0:
                 game_name = await self.bot.api.get_game_name(place_id)
                 items.append("|ERROR|")
@@ -543,7 +549,8 @@ class LeaderboardManager:
             items = []
             for row in rows:
                 name = await self.bot.user_manager.get_display_name(row["user_id"])
-                items.append(f"{name} - {(row["playtime"] / 3600):.2f}h")
+                playtime = await self.bot.stat_manager.get_playtime_str_minimal(row["playtime"])
+                items.append(f"{name} - {playtime}")
             if len(rows) == 0:
                 game_name = await self.bot.api.get_game_name(place_id)
                 items.append("|ERROR|")

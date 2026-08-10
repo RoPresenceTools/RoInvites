@@ -178,6 +178,17 @@ class StatManager:
         else:
             return f"{seconds}s"
 
+    async def get_playtime_str_minimal(self, playtime):
+        hours = round(playtime // 3600)
+        minutes = round((playtime % 3600) // 60)
+        seconds = playtime % 60
+        if hours > 0:
+            return f"{hours}h {minutes}m {seconds}s"
+        elif minutes > 0:
+            return f"{minutes}m {seconds}s"
+        else:
+            return f"{seconds}s"
+
     async def start_tracking_playtime(self, user_id, place_id):
         if await self.check_currently_playing(user_id):
             await self.finish_tracking_playtime(user_id)
