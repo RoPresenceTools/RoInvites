@@ -6,7 +6,7 @@ from styling.ri_colors import *
 
 class PaginatedLeaderboard(discord.ui.View):
     def __init__(self, bot, author_id, pagin_func, pagin_func_args, entries, title="", user_id=None, place_id=None, per_page=10):
-        super().__init__(timeout=0) # timeout=0 for testing!
+        super().__init__(timeout=120)
 
         self.bot = bot
         self.author_id = author_id
