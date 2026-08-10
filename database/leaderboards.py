@@ -87,7 +87,7 @@ class LeaderboardManager:
     async def get_total_playtimes_paginated(self, guild, start):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(f"""
+            rows = await conn.fetch("""
                 SELECT
                     user_id,
                     total_playtime,
@@ -103,8 +103,8 @@ class LeaderboardManager:
                     WHERE t.user_id = ANY($1)
                 ) playtimes
                 LIMIT 10
-                OFFSET {start}
-            """, guild_user_ids)
+                OFFSET $2
+            """, guild_user_ids, start)
 
             items = []
             for row in rows:
@@ -142,7 +142,7 @@ class LeaderboardManager:
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(f"""
+            rows = await conn.fetch("""
                 SELECT
                     user_id,
                     total_playtime,
@@ -163,8 +163,8 @@ class LeaderboardManager:
                 ) playtimes
                 WHERE total_playtime > 0
                 LIMIT 10
-                OFFSET {start}
-            """, snapshot_id, guild_user_ids)
+                OFFSET $3
+            """, snapshot_id, guild_user_ids, start)
 
             items = []
             for row in rows:
@@ -200,7 +200,7 @@ class LeaderboardManager:
                 return items
 
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(f"""
+            rows = await conn.fetch("""
                 SELECT
                     user_id,
                     place_id,
@@ -219,8 +219,8 @@ class LeaderboardManager:
                     WHERE g.user_id = $1
                 ) games_ranked
                 LIMIT 10
-                OFFSET {start}
-            """, user_id)
+                OFFSET $2
+            """, user_id, start)
 
             items = []
             for row in rows:
@@ -270,7 +270,7 @@ class LeaderboardManager:
 
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(f"""
+            rows = await conn.fetch("""
                 SELECT
                     user_id,
                     place_id,
@@ -295,8 +295,8 @@ class LeaderboardManager:
                 ) games_ranked
                 WHERE playtime > 0
                 LIMIT 10
-                OFFSET {start}
-            """, snapshot_id, user_id)
+                OFFSET $3
+            """, snapshot_id, user_id, start)
 
             items = []
             for row in rows:
@@ -334,7 +334,7 @@ class LeaderboardManager:
     async def get_agg_game_playtimes_paginated(self, guild, start):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(f"""
+            rows = await conn.fetch("""
                 SELECT
                     place_id,
                     playtime,
@@ -355,8 +355,8 @@ class LeaderboardManager:
                     GROUP BY g.place_id
                 ) games_ranked
                 LIMIT 10
-                OFFSET {start}
-            """, guild_user_ids)
+                OFFSET $2
+            """, guild_user_ids, start)
 
             items = []
             for row in rows:
@@ -398,7 +398,7 @@ class LeaderboardManager:
     async def get_agg_ls_game_playtimes_paginated(self, guild, start):
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(f"""
+            rows = await conn.fetch("""
                 SELECT
                     place_id,
                     playtime,
@@ -423,8 +423,8 @@ class LeaderboardManager:
                 ) games_ranked
                 WHERE playtime > 0
                 LIMIT 10
-                OFFSET {start}
-            """, snapshot_id)
+                OFFSET $2
+            """, snapshot_id, start)
 
             items = []
             for row in rows:
@@ -460,7 +460,7 @@ class LeaderboardManager:
     async def get_game_playtimes_breakdown_paginated(self, guild, place_id, start):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(f"""
+            rows = await conn.fetch("""
                 SELECT
                     user_id,
                     place_id,
@@ -480,8 +480,8 @@ class LeaderboardManager:
                     AND g.place_id = $2
                 ) games_ranked
                 LIMIT 10
-                OFFSET {start}
-            """, guild_user_ids, place_id)
+                OFFSET $3
+            """, guild_user_ids, place_id, start)
 
             items = []
             for row in rows:
@@ -523,7 +523,7 @@ class LeaderboardManager:
     async def get_ls_game_playtimes_breakdown_paginated(self, guild, place_id, start):
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(f"""
+            rows = await conn.fetch("""
                 SELECT
                     user_id,
                     place_id,
@@ -548,8 +548,8 @@ class LeaderboardManager:
                 ) games_ranked
                 WHERE playtime > 0
                 LIMIT 10
-                OFFSET {start}
-            """, snapshot_id, place_id)
+                OFFSET $3
+            """, snapshot_id, place_id, start)
 
             items = []
             for row in rows:
