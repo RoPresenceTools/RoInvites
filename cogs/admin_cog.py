@@ -35,6 +35,21 @@ class AdminCog(commands.Cog):
         )
     )
 
+    @admin.command(name="reload", description="Reloads all extensions (besides admin)")
+    async def admin_reload_extensions(
+        self, 
+        interaction: discord.Interaction
+    ):
+        if not await self.bot.is_owner(interaction.user):
+            await interaction.response.send_message(f"You are not the bot owner.")
+
+        await interaction.response.defer(ephemeral=True)
+        success = await interaction.client.reload_extensions()
+        if success == True:
+            await interaction.followup.send(f"Successfully reloaded all extensions!")
+        else:
+            await interaction.followup.send(f"Couldn't reload extensions.")
+
     @admin.command(name="remove", description="Removes a user from Roblox Invites")
     @app_commands.autocomplete(user_id=user_autocomplete)
     async def admin_remove_user(

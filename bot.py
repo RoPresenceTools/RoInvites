@@ -44,6 +44,16 @@ class RobloxInvitesBot(commands.Bot):
 
         await self.tree.sync()
 
+    async def reload_extensions(self):
+        await self.reload_extension("cogs.help_cog")
+        await self.reload_extension("cogs.user_cog")
+        await self.reload_extension("cogs.cgt_cog")
+        await self.reload_extension("cogs.blacklist_cog")
+        await self.reload_extension("cogs.settings_cog")
+        await self.reload_extension("cogs.leaderboard_cog")
+        await self.reload_extension("cogs.server_cog")
+        return True
+
     async def on_ready(self):
         for guild in self.guilds:
             await self.db.create_guild(guild)
