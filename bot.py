@@ -1,6 +1,6 @@
 import discord
 import database
-from database import Database
+import importlib
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -13,7 +13,7 @@ class RobloxInvitesBot(commands.Bot):
         intents.members = True
         super().__init__(command_prefix="!", intents=intents)
         
-        self.db = Database()
+        self.db = database.Database()
         self.api = api
 
     async def setup_hook(self):
@@ -45,13 +45,17 @@ class RobloxInvitesBot(commands.Bot):
         await self.tree.sync()
 
     async def reload_extensions(self):
-        await self.reload_extension("cogs.help_cog")
-        await self.reload_extension("cogs.user_cog")
-        await self.reload_extension("cogs.cgt_cog")
-        await self.reload_extension("cogs.blacklist_cog")
-        await self.reload_extension("cogs.settings_cog")
-        await self.reload_extension("cogs.leaderboard_cog")
-        await self.reload_extension("cogs.server_cog")
+        importlib.reload(database.users)
+        importlib.reload(database.metadata)
+        importlib.reload(database.transfers)
+        importlib.reload(database.custom)
+        importlib.reload(database.blacklist)
+        importlib.reload(database.settings)
+        importlib.reload(database.presences)
+        importlib.reload(database.stats)
+        importlib.reload(database.snapshots)
+        importlib.reload(database.leaderboards)
+        importlib.reload(database)
 
         self.metadata_manager = database.MetadataManager(self.db.pool)
         self.user_manager = database.UserManager(self.db.pool, self.api)
@@ -63,6 +67,14 @@ class RobloxInvitesBot(commands.Bot):
         self.stat_manager = database.StatManager(self.db.pool, self.api, self.user_manager)
         self.snapshot_manager = database.SnapshotManager(self.db.pool, self, self.api)
         self.leaderboard_manager = database.LeaderboardManager(self.db.pool, self, self.api)
+
+        await self.reload_extension("cogs.help_cog")
+        await self.reload_extension("cogs.user_cog")
+        await self.reload_extension("cogs.cgt_cog")
+        await self.reload_extension("cogs.blacklist_cog")
+        await self.reload_extension("cogs.settings_cog")
+        await self.reload_extension("cogs.leaderboard_cog")
+        await self.reload_extension("cogs.server_cog")
 
         return True
 
