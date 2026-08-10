@@ -239,13 +239,13 @@ class LeaderboardCog(commands.Cog):
         interaction: discord.Interaction, 
         user_id: int
     ):
-        entries = await self.bot.leaderboard_manager.get_entries_game_playtimes(user_id)
+        entries = await self.bot.leaderboard_manager.get_entries_game_playtimes(interaction.guild, user_id)
         view = PaginatedLeaderboard(
             bot=self.bot,
             author_id=interaction.user.id,
             user_id=user_id,
             pagin_func=self.bot.leaderboard_manager.get_game_playtimes_paginated,
-            pagin_func_args=[user_id],
+            pagin_func_args=[interaction.guild, user_id],
             entries=entries,
             title="{display_name}'s Played Games",
             per_page=10

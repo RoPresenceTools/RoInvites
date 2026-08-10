@@ -174,7 +174,11 @@ class LeaderboardManager:
 
             return items
 
-    async def get_entries_game_playtimes(self, user_id):
+    async def get_entries_game_playtimes(self, guild, user_id):
+        guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
+        if not user_id in guild_user_ids:
+            return 0
+
         async with self.pool.acquire() as conn:
             return await conn.fetchval("""
                 SELECT COUNT(*)
@@ -182,7 +186,15 @@ class LeaderboardManager:
                 WHERE user_id = $1
             """, user_id)
 
-    async def get_game_playtimes_paginated(self, user_id, start):
+    async def get_game_playtimes_paginated(self, guild, user_id, start):
+        guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
+        if not user_id in guild_user_ids:
+            items = [
+                "|ERROR|",
+                "That user is not in this server."
+            ]
+            return items
+
         async with self.pool.acquire() as conn:
             rows = await conn.fetch(f"""
                 SELECT
@@ -214,6 +226,10 @@ class LeaderboardManager:
             return items
 
     async def get_entries_ls_game_playtimes(self, guild, user_id):
+        guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
+        if not user_id in guild_user_ids:
+            return 0
+
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         async with self.pool.acquire() as conn:
             return await conn.fetchval("""
@@ -239,6 +255,14 @@ class LeaderboardManager:
             """, snapshot_id, user_id)
 
     async def get_ls_game_playtimes_paginated(self, guild, user_id, start):
+        guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
+        if not user_id in guild_user_ids:
+            items = [
+                "|ERROR|",
+                "That user is not in this server."
+            ]
+            return items
+
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         async with self.pool.acquire() as conn:
             rows = await conn.fetch(f"""
