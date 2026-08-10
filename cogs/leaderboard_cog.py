@@ -323,7 +323,7 @@ class LeaderboardCog(commands.Cog):
             total_func=self.bot.leaderboard_manager.get_ls_game_playtimes_total,
             pagin_func_args=[interaction.guild, user_id],
             entries=entries,
-            title="{display_name}'s Played Games",
+            title="{display_name}'s Played Games Since Last Snapshot",
             per_page=10
         )
         await interaction.response.send_message(embed=await view.get_embed(), view=view)
