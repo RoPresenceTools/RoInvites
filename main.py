@@ -24,6 +24,7 @@ Updated from __v{0}__ to __v{1}__
    - `/leaderboard user` gives the played games of a user in descending order of playtime.
    - `/leaderboard profile` gives a profile card for a given user.
     - This replaces `/server user_stats` and the concept of usercards entirely.
+- Migrated `/leaderboard save | remove` to `/snapshot save | remove`
 """
 
 if not os.path.exists("./database/backups/"):
