@@ -25,6 +25,7 @@ class PaginatedLeaderboard(discord.ui.View):
         self.update_buttons()
 
     async def on_timeout(self):
+        self.refresh.disabled = True
         self.first.disabled = True
         self.previous.disabled = True
         self.next.disabled = True
@@ -92,6 +93,16 @@ class PaginatedLeaderboard(discord.ui.View):
         self.previous.disabled = self.page <= 0
         self.next.disabled = self.page >= self.max_page
         self.last.disabled = self.page >= self.max_page
+
+    @discord.ui.button(label="Refresh", style=discord.ButtonStyle.primary)
+    async def refresh(self, interaction, button):
+        if interaction.user.id == self.author_id:
+            await interaction.response.edit_message(
+                embed=await self.get_embed(),
+                view=self
+            )
+        else:
+            await interaction.response.send_message("You're not the sender of this message!", ephemeral=True)
 
     @discord.ui.button(label="<<", style=discord.ButtonStyle.secondary)
     async def first(self, interaction, button):
