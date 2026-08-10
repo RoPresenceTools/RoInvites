@@ -87,7 +87,7 @@ class LeaderboardManager:
     async def get_total_playtimes_total(self, guild):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
-            return conn.fetchval("""
+            return await conn.fetchval("""
                 SELECT SUM(total_playtime)
                 FROM (
                     SELECT
@@ -769,18 +769,20 @@ class LeaderboardManager:
 
         games_to_list = 5 if mode == "server" else 10
         message_content += f"\n\n**Your Top {games_to_list} Games Overall:**"
-        if "|ERROR|" not in game_playtimes[:games_to_list]:
+        if "error" not in game_playtimes[:games_to_list][0]:
             for i, item in enumerate(game_playtimes[:games_to_list]):
-                message_content += f"\n{i}. {item}"
+                playtime_str = await self.bot.stat_manager.get_playtime_str(playtime=item["playtime"])
+                message_content += f"\n{i}. {item["name"]} - {playtime_str}"
         else:
-            message_content += f"\n{game_playtimes[:games_to_list][1]}"
+            message_content += f"\n{game_playtimes[:games_to_list][0]["error"]}"
 
         if mode == "server":
             message_content += f"\n\n**Your Top 5 Games since Last Snapshot:**"
             if snapshot_id is not None:
-                if not "|ERROR|" in ls_game_playtimes[:5]:
+                if "error" not in ls_game_playtimes[:5][0]:
                     for i, item in enumerate(ls_game_playtimes[:5]):
-                        message_content += f"\n{i}. {item}"
+                        playtime_str = await self.bot.stat_manager.get_playtime_str(playtime=item["playtime"])
+                        message_content += f"\n{i}. {item["name"]} - {playtime_str}"
                 else:
                     message_content += "\nYou haven't played any games since the last snapshot was taken."
             else:

@@ -85,6 +85,7 @@ class PaginatedLeaderboard(discord.ui.View):
             embed.set_footer(
                 text="Page 0/0"
             )
+            self.refresh.disabled = True
 
         return embed
 
