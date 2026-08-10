@@ -513,6 +513,7 @@ class LeaderboardManager:
                     WHERE s.snapshot_id = $1
                     AND g.place_id = $2
                 ) games_ranked
+                WHERE playtime > 0
             """, snapshot_id, place_id)
 
     async def get_ls_game_playtimes_breakdown_paginated(self, guild, place_id, start):
