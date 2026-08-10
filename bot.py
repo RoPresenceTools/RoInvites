@@ -52,6 +52,18 @@ class RobloxInvitesBot(commands.Bot):
         await self.reload_extension("cogs.settings_cog")
         await self.reload_extension("cogs.leaderboard_cog")
         await self.reload_extension("cogs.server_cog")
+
+        self.metadata_manager = database.MetadataManager(self.db.pool)
+        self.user_manager = database.UserManager(self.db.pool, self.api)
+        self.presence_manager = database.PresenceManager(self.db.pool, self.api, self.user_manager)
+        self.transfer_manager = database.TransferManager(self.db.pool)
+        self.cgt_manager = database.CGTManager(self.db.pool, self.api)
+        self.blacklist_manager = database.BlacklistManager(self.db.pool, self.api)
+        self.settings_manager = database.SettingsManager(self.db.pool, self)
+        self.stat_manager = database.StatManager(self.db.pool, self.api, self.user_manager)
+        self.snapshot_manager = database.SnapshotManager(self.db.pool, self, self.api)
+        self.leaderboard_manager = database.LeaderboardManager(self.db.pool, self, self.api)
+
         return True
 
     async def on_ready(self):

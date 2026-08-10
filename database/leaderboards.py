@@ -169,7 +169,7 @@ class LeaderboardManager:
                 name = await self.bot.user_manager.get_display_name(row["user_id"])
                 items.append(f"{name} - {(row["total_playtime"] / 3600):.2f}h")
             if len(rows) == 0:
-                items.append("|NONE|")
+                items.append("|ERROR|")
                 items.append("No one has played any game since the last snapshot.")
 
             return items
@@ -274,7 +274,7 @@ class LeaderboardManager:
                 name = await self.bot.api.get_game_name(row["place_id"])
                 items.append(f"{name} - {(row["playtime"] / 3600):.2f}h")
             if len(rows) == 0:
-                items.append("|NONE|")
+                items.append("|ERROR|")
                 items.append("This user hasn't played any games since the last snapshot.")
 
             return items
@@ -333,7 +333,7 @@ class LeaderboardManager:
                 name = await self.bot.api.get_game_name(row["place_id"])
                 items.append(f"{name} - {(row["playtime"] / 3600):.2f}h")
             if len(rows) == 0:
-                items.append("|NONE|")
+                items.append("|ERROR|")
                 items.append("No one has played any games yet.")
 
             return items
@@ -401,7 +401,7 @@ class LeaderboardManager:
                 name = await self.bot.api.get_game_name(row["place_id"])
                 items.append(f"{name} - {(row["playtime"] / 3600):.2f}h")
             if len(rows) == 0:
-                items.append("|NONE|")
+                items.append("|ERROR|")
                 items.append("No one has played any games since the last snapshot.")
 
             return items
@@ -457,7 +457,7 @@ class LeaderboardManager:
                 name = await self.bot.user_manager.get_display_name(row["user_id"])
                 items.append(f"{name} - {(row["playtime"] / 3600):.2f}h")
             if len(rows) == 0:
-                items.append("|NONE|")
+                items.append("|ERROR|")
                 items.append("No one has played this game yet.")
 
             return items
@@ -522,7 +522,7 @@ class LeaderboardManager:
                 name = await self.bot.user_manager.get_display_name(row["user_id"])
                 items.append(f"{name} - {(row["playtime"] / 3600):.2f}h")
             if len(rows) == 0:
-                items.append("|NONE|")
+                items.append("|ERROR|")
                 items.append("No one has played this game since the last snapshot.")
 
             return items
