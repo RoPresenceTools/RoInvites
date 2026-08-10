@@ -135,6 +135,7 @@ class LeaderboardManager:
                     WHERE s.snapshot_id = $1
                     AND s.user_id = ANY($2)
                 ) playtimes
+                WHERE total_playtime > 0
             """, snapshot_id, guild_user_ids)
 
     async def get_ls_total_playtimes_paginated(self, guild, start):
@@ -160,6 +161,7 @@ class LeaderboardManager:
                     WHERE s.snapshot_id = $1
                     AND s.user_id = ANY($2)
                 ) playtimes
+                WHERE total_playtime > 0
                 LIMIT 10
                 OFFSET {start}
             """, snapshot_id, guild_user_ids)
