@@ -18,19 +18,25 @@ class PaginatedLeaderboard(discord.ui.View):
         self.title = title
         self.pagin_func = pagin_func
         self.pagin_func_args = pagin_func_args
+        self.thumbnail_url = None
 
         self.update_buttons()
 
     async def get_embed(self):
-        if self.user_id is not None:
-            display_name = await self.bot.user_manager.get_display_name(self.user_id)
-            self.title = self.title.replace("{display_name}", display_name)
-        elif self.place_id is not None:
-            game_name = await self.bot.api.get_game_name(self.place_id)
-            self.title = self.title.replace("{game_name}", game_name)
-
         start = self.page * self.per_page
         items = await self.pagin_func(*self.pagin_func_args, start)
+
+        if self.thumbnail_url is None:
+            if self.user_id is not None:
+                self.thumbnail_url = await self.bot.api.get_avatar_headshot(self.user_id)
+                display_name = await self.bot.user_manager.get_display_name(self.user_id)
+                self.title = self.title.replace("{display_name}", display_name)
+            elif self.place_id is not None:
+                self.thumbnail_url = await self.bot.api.get_game_icon(self.place_id)
+                game_name = await self.bot.api.get_game_name(self.place_id)
+                self.title = self.title.replace("{game_name}", game_name)
+            print("fetched thumbnail url")
+
         if not "|ERROR|" in items:
             embed = discord.Embed(
                 title=self.title,
@@ -40,6 +46,8 @@ class PaginatedLeaderboard(discord.ui.View):
                 ),
                 color=discord.Color.dark_gold()
             )
+            if self.thumbnail_url is not None:
+                embed.set_thumbnail(url=self.thumbnail_url)
             embed.set_footer(
                 text=f"Page {self.page + 1}/{self.max_page + 1}"
             )

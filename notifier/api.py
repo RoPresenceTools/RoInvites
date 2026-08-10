@@ -173,6 +173,15 @@ class API:
                 thumbnail_url = thumbnail["data"][0]["imageUrl"]
         return thumbnail_url
 
+    async def get_game_icon(self, place_id):
+        universe_id = await self.get_universe_id(place_id)
+        thumbnail = await self.get_misc(f"https://thumbnails.roblox.com/v1/games/icons?universeIds={universe_id}&returnPolicy=PlaceHolder&size=50x50&format=Png&isCircular=false")
+        thumbnail_url = None
+        if "data" in thumbnail:
+            if len(thumbnail["data"]) > 0:
+                thumbnail_url = thumbnail["data"][0]["imageUrl"]
+        return thumbnail_url
+
     async def get_cached_games(self, guild, query):
         async with self.pool.acquire() as conn:
             rows = await conn.fetch("""

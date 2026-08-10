@@ -1,5 +1,3 @@
-from datetime import datetime
-
 class LeaderboardManager:
     def __init__(self, pool, bot, api):
         self.pool = pool
