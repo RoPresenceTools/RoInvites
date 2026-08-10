@@ -14,7 +14,7 @@ Run `/settings invites` to set the channel where invites are sent.
 Run `/settings announcements` to set the channel where announcements are sent.
 To remove a Custom Title, run `/custom_title remove`.
 To add or remove a blacklisted place ID, run `/blacklist [add | remove]`.
-To save/delete snapshots, run `/leaderboard [save | remove]`.
+To save/delete snapshots, run `/snapshot [save | remove]`.
 """
 
 class HelpCog(commands.Cog):
