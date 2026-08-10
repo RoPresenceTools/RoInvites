@@ -29,8 +29,14 @@ class PaginatedLeaderboard(discord.ui.View):
         self.next.disabled = True
         self.last.disabled = True
 
+        timeout_embed = discord.Embed(
+            title="Timed Out",
+            description="This leaderboard has timed out.\nRun the command again to continue interacting with this leaderboard.",
+            color=red
+        )
+
         await self.message.edit(
-            embed=await self.get_embed(),
+            embed=timeout_embed,
             view=self
         )
 
