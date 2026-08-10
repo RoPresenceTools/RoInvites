@@ -43,14 +43,13 @@ class SnapshotManager:
 
     async def get_latest_snapshot_id(self, guild):
         async with self.pool.acquire() as conn:
-            snapshot_id = await conn.fetchval("""
+            return await conn.fetchval("""
                 SELECT snapshot_id
                 FROM snapshot_metadata
                 WHERE guild_id = $1
                 ORDER BY snapshot_id DESC
                 LIMIT 1
             """, guild.id)
-            return snapshot_id
 
     async def save_snapshot(self, guild):
         user_ids = await self.bot.user_manager.get_guild_user_ids(guild)

@@ -1,7 +1,108 @@
+import math
 import discord
 from discord import app_commands
 from discord.ext import commands
 from styling.ri_colors import *
+
+class PaginatedLeaderboard(discord.ui.View):
+    def __init__(self, bot, author_id, pagin_func, pagin_func_args, entries, title="", user_id=None, place_id=None, per_page=10):
+        super().__init__(timeout=0) # timeout=0 for testing!
+
+        self.bot = bot
+        self.author_id = author_id
+        self.user_id = user_id
+        self.place_id = place_id
+        self.per_page = per_page
+        self.page = 0
+        self.max_page = math.floor(entries / 10)
+        self.title = title
+        self.pagin_func = pagin_func
+        self.pagin_func_args = pagin_func_args
+
+        self.update_buttons()
+
+    async def get_embed(self):
+        if self.user_id is not None:
+            display_name = await self.bot.user_manager.get_display_name(self.user_id)
+            self.title = self.title.replace("{display_name}", display_name)
+        elif self.place_id is not None:
+            game_name = await self.bot.api.get_game_name(self.place_id)
+            self.title = self.title.replace("{game_name}", game_name)
+
+        start = self.page * self.per_page
+        items = await self.pagin_func(*self.pagin_func_args, start)
+
+        embed = discord.Embed(
+            title=self.title,
+            description="\n".join(
+                f"{start + i}. {item}"
+                for i, item in enumerate(items, start=1)
+            ),
+            color=discord.Color.dark_gold()
+        )
+        embed.set_footer(
+            text=f"Page {self.page + 1}/{self.max_page + 1}"
+        )
+
+        return embed
+
+    def update_buttons(self):
+        self.first.disabled = self.page <= 0
+        self.previous.disabled = self.page <= 0
+        self.next.disabled = self.page >= self.max_page
+        self.last.disabled = self.page >= self.max_page
+
+    @discord.ui.button(label="<<", style=discord.ButtonStyle.secondary)
+    async def first(self, interaction, button):
+        if interaction.user.id == self.author_id:
+            self.page = 0
+            self.update_buttons()
+
+            await interaction.response.edit_message(
+                embed=await self.get_embed(),
+                view=self
+            )
+        else:
+            await interaction.response.send_message("You're not the sender of this message!", ephemeral=True)
+
+    @discord.ui.button(label="<", style=discord.ButtonStyle.secondary)
+    async def previous(self, interaction, button):
+        if interaction.user.id == self.author_id:
+            self.page -= 1
+            self.update_buttons()
+
+            await interaction.response.edit_message(
+                embed=await self.get_embed(),
+                view=self
+            )
+        else:
+            await interaction.response.send_message("You're not the sender of this message!", ephemeral=True)
+
+    @discord.ui.button(label=">", style=discord.ButtonStyle.secondary)
+    async def next(self, interaction, button):
+        if interaction.user.id == self.author_id:
+            self.page += 1
+            self.update_buttons()
+
+            await interaction.response.edit_message(
+                embed=await self.get_embed(),
+                view=self
+            )
+        else:
+            await interaction.response.send_message("You're not the sender of this message!", ephemeral=True)
+
+    @discord.ui.button(label=">>", style=discord.ButtonStyle.secondary)
+    async def last(self, interaction, button):
+        if interaction.user.id == self.author_id:
+            self.page = self.max_page
+            self.update_buttons()
+
+            await interaction.response.edit_message(
+                embed=await self.get_embed(),
+                view=self
+            )
+        else:
+            await interaction.response.send_message("You're not the sender of this message!", ephemeral=True)
 
 class LeaderboardCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -20,7 +121,23 @@ class LeaderboardCog(commands.Cog):
             private_channel=False
         )
     )
+
     game = app_commands.Group(name="game", description="Game-related leaderboard commands", parent=leaderboard)
+    user = app_commands.Group(name="user", description="User-related leaderboard commands", parent=leaderboard)
+    breakdown_game = app_commands.Group(name="breakdown_game", description="Game related leaderboard commands", parent=leaderboard)
+    breakdown_user = app_commands.Group(name="breakdown_user", description="User related leaderboard commands", parent=leaderboard)
+
+    async def user_autocomplete(
+        self,
+        interaction: discord.Interaction,
+        query: str,
+    ) -> list[app_commands.Choice[str]]:
+        users = await interaction.client.user_manager.get_guild_users(interaction.guild)
+        return [
+            app_commands.Choice(name=user["username"], value=user["user_id"])
+            for user in users
+            if query.lower() in user["username"].lower()
+        ]
 
     async def all_games_autocomplete(
         self,
@@ -34,31 +151,117 @@ class LeaderboardCog(commands.Cog):
             for game in game_list
         ]
 
-    @leaderboard.command(name="all", description="Sends this server's all-time playtime leaderboard")
-    async def all_time_user_leaderboard(
+    @breakdown_user.command(name="all", description="Sends this server's all-time playtime leaderboard")
+    async def get_all_paginated(
         self, 
-        interaction: discord.Interaction
+        interaction: discord.Interaction, 
     ):
-        (message_title, message_content) = await interaction.client.leaderboard_manager.get_alltime_user_leaderboard(interaction.guild)
-        embed = discord.Embed(
-            title=message_title,
-            description=message_content,
-            color=discord.Color.dark_gold()
+        entries = await self.bot.leaderboard_manager.get_entries_total_playtimes(interaction.guild)
+        view = PaginatedLeaderboard(
+            bot=self.bot,
+            author_id=interaction.user.id,
+            pagin_func=self.bot.leaderboard_manager.get_total_playtimes_paginated,
+            pagin_func_args=[interaction.guild],
+            entries=entries,
+            title="All-Time Playtime Leaderboard",
+            user_id=None,
+            per_page=10
         )
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=await view.get_embed(), view=view)
 
-    @leaderboard.command(name="last_snapshot", description="Sends this server's playtime leaderboard since last snapshot")
-    async def ls_leaderboard(
+    @breakdown_user.command(name="snapshot", description="Sends this server's playtime leaderboard since last snapshot")
+    async def get_all_ls_paginated(
         self,
         interaction: discord.Interaction
     ):
-        (message_title, message_content) = await interaction.client.leaderboard_manager.get_ls_user_leaderboard(interaction.guild)
-        embed = discord.Embed(
-            title=message_title,
-            description=message_content,
-            color=discord.Color.dark_gold() if message_title != "Error" else red
+        entries = await self.bot.leaderboard_manager.get_entries_ls_total_playtimes(interaction.guild)
+        view = PaginatedLeaderboard(
+            bot=self.bot,
+            author_id=interaction.user.id,
+            pagin_func=self.bot.leaderboard_manager.get_ls_total_playtimes_paginated,
+            pagin_func_args=[interaction.guild],
+            entries=entries,
+            title="Since-Last-Snapshot Playtime Leaderboard",
+            user_id=None,
+            per_page=10
         )
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=await view.get_embed(), view=view)
+
+    @breakdown_game.command(name="all", description="Sends this server's all-time game playtime leaderboard")
+    async def get_all_game_paginated(
+        self, 
+        interaction: discord.Interaction, 
+    ):
+        entries = await self.bot.leaderboard_manager.get_entries_agg_game_playtimes(interaction.guild)
+        view = PaginatedLeaderboard(
+            bot=self.bot,
+            author_id=interaction.user.id,
+            pagin_func=self.bot.leaderboard_manager.get_agg_game_playtimes_paginated,
+            pagin_func_args=[interaction.guild],
+            entries=entries,
+            title="All-Time Playtime Leaderboard",
+            user_id=None,
+            per_page=10
+        )
+        await interaction.response.send_message(embed=await view.get_embed(), view=view)
+
+    @breakdown_game.command(name="snapshot", description="Sends this server's game playtime leaderboard since last snapshot")
+    async def get_all_ls_game_paginated(
+        self,
+        interaction: discord.Interaction
+    ):
+        entries = await self.bot.leaderboard_manager.get_entries_agg_ls_game_playtimes(interaction.guild)
+        view = PaginatedLeaderboard(
+            bot=self.bot,
+            author_id=interaction.user.id,
+            pagin_func=self.bot.leaderboard_manager.get_agg_ls_game_playtimes_paginated,
+            pagin_func_args=[interaction.guild],
+            entries=entries,
+            title="Since-Last-Snapshot Playtime Leaderboard",
+            user_id=None,
+            per_page=10
+        )
+        await interaction.response.send_message(embed=await view.get_embed(), view=view)
+
+    @user.command(name="all", description="Shows a user's statistics in a given server for all games")
+    @app_commands.autocomplete(user_id=user_autocomplete)
+    async def get_user_paginated(
+        self, 
+        interaction: discord.Interaction, 
+        user_id: int
+    ):
+        entries = await self.bot.leaderboard_manager.get_entries_game_playtimes(user_id)
+        view = PaginatedLeaderboard(
+            bot=self.bot,
+            author_id=interaction.user.id,
+            user_id=user_id,
+            pagin_func=self.bot.leaderboard_manager.get_game_playtimes_paginated,
+            pagin_func_args=[user_id],
+            entries=entries,
+            title="{display_name}'s Played Games",
+            per_page=10
+        )
+        await interaction.response.send_message(embed=await view.get_embed(), view=view)
+
+    @user.command(name="snapshot", description="Shows a user's statistics in a given server for all games since last snapshot")
+    @app_commands.autocomplete(user_id=user_autocomplete)
+    async def get_user_paginated(
+        self, 
+        interaction: discord.Interaction, 
+        user_id: int
+    ):
+        entries = await self.bot.leaderboard_manager.get_entries_ls_game_playtimes(interaction.guild, user_id)
+        view = PaginatedLeaderboard(
+            bot=self.bot,
+            author_id=interaction.user.id,
+            user_id=user_id,
+            pagin_func=self.bot.leaderboard_manager.get_ls_game_playtimes_paginated,
+            pagin_func_args=[interaction.guild, user_id],
+            entries=entries,
+            title="{display_name}'s Played Games",
+            per_page=10
+        )
+        await interaction.response.send_message(embed=await view.get_embed(), view=view)
 
     @game.command(name="all", description="Sends this server's all-time playtime leaderboard for a game")
     @app_commands.autocomplete(place_id=all_games_autocomplete)
@@ -67,28 +270,38 @@ class LeaderboardCog(commands.Cog):
         interaction: discord.Interaction,
         place_id: int
     ):
-        (message_title, message_content) = await interaction.client.leaderboard_manager.get_alltime_game_leaderboard(interaction.guild, place_id)
-        embed = discord.Embed(
-            title=message_title,
-            description=message_content,
-            color=discord.Color.dark_gold() if message_title != "Error" else red
+        entries = await self.bot.leaderboard_manager.get_entries_game_playtimes_breakdown(interaction.guild, place_id)
+        view = PaginatedLeaderboard(
+            bot=self.bot,
+            author_id=interaction.user.id,
+            pagin_func=self.bot.leaderboard_manager.get_game_playtimes_breakdown_paginated,
+            pagin_func_args=[interaction.guild, place_id],
+            entries=entries,
+            title="All-Time Playtime Leaderboard for {game_name}",
+            place_id=place_id,
+            per_page=10
         )
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=await view.get_embed(), view=view)
 
-    @game.command(name="last_snapshot", description="Sends this server's playtime leaderboard for a game since the last saved snapshot")
+    @game.command(name="snapshot", description="Sends this server's playtime leaderboard for a game since the last saved snapshot")
     @app_commands.autocomplete(place_id=all_games_autocomplete)
     async def ls_game_leaderboard(
         self, 
         interaction: discord.Interaction,
         place_id: int
     ):
-        (message_title, message_content) = await interaction.client.leaderboard_manager.get_ls_game_leaderboard(interaction.guild, place_id)
-        embed = discord.Embed(
-            title=message_title,
-            description=message_content,
-            color=discord.Color.dark_gold() if message_title != "Error" else red
+        entries = await self.bot.leaderboard_manager.get_entries_ls_game_playtimes_breakdown(interaction.guild, place_id)
+        view = PaginatedLeaderboard(
+            bot=self.bot,
+            author_id=interaction.user.id,
+            pagin_func=self.bot.leaderboard_manager.get_ls_game_playtimes_breakdown_paginated,
+            pagin_func_args=[interaction.guild, place_id],
+            entries=entries,
+            title="Since-Last-Snapshot Playtime Leaderboard for {game_name}",
+            place_id=place_id,
+            per_page=10
         )
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=await view.get_embed(), view=view)
 
     @leaderboard.command(name="save", description="Saves a snapshot of user data for weekly leaderboards")
     @app_commands.default_permissions(manage_guild=True)
@@ -111,6 +324,6 @@ class LeaderboardCog(commands.Cog):
         await interaction.response.defer()
         await interaction.client.snapshot_manager.remove_last_snapshot(interaction.guild)
         await interaction.followup.send("Removed the last saved snapshot.")
-        
+
 async def setup(bot: commands.Bot):
     await bot.add_cog(LeaderboardCog(bot))
