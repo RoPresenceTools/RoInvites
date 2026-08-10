@@ -222,7 +222,8 @@ class LeaderboardManager:
             items = []
             for row in rows:
                 name = await self.bot.api.get_game_name(row["place_id"])
-                items.append(f"{name} - {(row["playtime"] / 3600):.2f}")
+                playtime = await self.bot.stat_manager.get_playtime_str_minimal(row["playtime"])
+                items.append(f"{name} - {playtime}")
 
             return items
 
@@ -566,7 +567,7 @@ class LeaderboardManager:
 
         discord_user_id = await self.bot.user_manager.get_discord_id_from_user(user_id)
         leaderboard_spot = await self.get_leaderboard_position(guild, user_id)
-        game_playtimes = await self.get_game_playtimes_paginated(user_id, 0)
+        game_playtimes = await self.get_game_playtimes_paginated(guild, user_id, 0)
 
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         ls_leaderboard_spot = await self.get_ls_leaderboard_position(guild, user_id)
@@ -576,14 +577,15 @@ class LeaderboardManager:
         display_name = await self.bot.user_manager.get_display_name(user_id)
         username = await self.bot.user_manager.get_username(user_id)
 
-        message_title = f"{display_name}'s usercard"
+        message_title = f"{display_name}'s profile"
 
         message_content = "**Your Info:**"
         message_content += f"\nRoblox username: @{username}"
         message_content += f"\nDiscord username: <@{discord_user_id}>"
 
+        playtime = await self.bot.stat_manager.get_playtime_str_minimal(total)
         message_content += "\n\n**Your Playtimes:**"
-        message_content += f"\nOverall Playtime: {total / 3600:.2f}h"
+        message_content += f"\nOverall Playtime: {playtime}"
 
         message_content += "\n\n**Your Standings:**"
         message_content += f"\nOverall Leaderboard Position: #{leaderboard_spot}"
@@ -599,7 +601,7 @@ class LeaderboardManager:
 
         ls_games = 0
         message_content += f"\n\n**Your Top 5 Games since Last Snapshot:**"
-        if snapshot_id != None:
+        if snapshot_id is not None:
             for i, item in enumerate(ls_game_playtimes[:5]):
                 message_content += f"\n{i}. {item}"
                 ls_games += 1
@@ -620,14 +622,15 @@ class LeaderboardManager:
         display_name = await self.bot.user_manager.get_display_name(user_id)
         username = await self.bot.user_manager.get_username(user_id)
 
-        message_title = f"{display_name}'s usercard"
+        message_title = f"{display_name}'s profile"
 
         message_content = "**Your Info:**"
         message_content += f"\nRoblox username: @{username}"
         message_content += f"\nDiscord username: <@{discord_user_id}>"
 
+        playtime = await self.bot.stat_manager.get_playtime_str_minimal(total)
         message_content += f"\n\n**Your Playtimes:**"
-        message_content += f"\nOverall Playtime: {total / 3600:.2f}h"
+        message_content += f"\nOverall Playtime: {playtime}"
 
         overall_games = 0
         message_content += f"\n\n**Your Top 10 Games Overall:**"

@@ -339,6 +339,31 @@ class LeaderboardCog(commands.Cog):
         await interaction.response.send_message(embed=await view.get_embed(), view=view)
         view.message = await interaction.original_response()
 
+    @leaderboard.command(name="profile", description="Shows a user's statistics in a given server")
+    @app_commands.autocomplete(user_id=user_autocomplete)
+    async def get_user_profile(
+        self, 
+        interaction: discord.Interaction, 
+        user_id: int
+    ):
+        try:
+            await interaction.response.defer()
+            message_title, message_content = await interaction.client.leaderboard_manager.get_user_stats(interaction.guild, user_id)
+            embed = discord.Embed(
+                title=message_title,
+                description=message_content,
+                color=discord.Color.dark_gold() if message_title != "Error" else red
+            )
+
+            if message_title != "Error":
+                thumbnail_url = await interaction.client.api.get_avatar_headshot(user_id)
+                if thumbnail_url is not None:
+                    embed.set_thumbnail(url=thumbnail_url)
+            await interaction.followup.send(embed=embed)
+        except:
+            import traceback
+            traceback.print_exc()
+
     @leaderboard.command(name="save", description="Saves a snapshot of user data for weekly leaderboards")
     @app_commands.default_permissions(manage_guild=True)
     @app_commands.checks.has_permissions(manage_guild=True)
