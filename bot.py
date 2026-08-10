@@ -40,6 +40,7 @@ class RobloxInvitesBot(commands.Bot):
         await self.load_extension("cogs.settings_cog")
         await self.load_extension("cogs.leaderboard_cog")
         await self.load_extension("cogs.server_cog")
+        await self.load_extension("cogs.snapshot_cog")
         await self.load_extension("cogs.admin_cog")
 
         await self.tree.sync()
@@ -75,6 +76,7 @@ class RobloxInvitesBot(commands.Bot):
         await self.reload_extension("cogs.settings_cog")
         await self.reload_extension("cogs.leaderboard_cog")
         await self.reload_extension("cogs.server_cog")
+        await self.reload_extension("cogs.snapshot_cog")
 
         return True
 
