@@ -5,7 +5,7 @@ from discord.ext import commands
 from styling.ri_colors import *
 
 class PaginatedLeaderboard(discord.ui.View):
-    def __init__(self, bot, author_id, pagin_func, pagin_func_args, entries, title="", user_id=None, place_id=None, per_page=10):
+    def __init__(self, bot, author_id, pagin_func, total_func, pagin_func_args, entries, title="", user_id=None, place_id=None, per_page=10):
         super().__init__(timeout=120)
 
         self.bot = bot
@@ -17,6 +17,7 @@ class PaginatedLeaderboard(discord.ui.View):
         self.max_page = max(0, math.ceil(entries / 10) - 1)
         self.title = title
         self.pagin_func = pagin_func
+        self.total_func = total_func
         self.pagin_func_args = pagin_func_args
         self.thumbnail_url = None
         self.message = None
@@ -54,24 +55,30 @@ class PaginatedLeaderboard(discord.ui.View):
                 game_name = await self.bot.api.get_game_name(self.place_id)
                 self.title = self.title.replace("{game_name}", game_name)
 
-        if not "|ERROR|" in items:
+        if not "error" in items[0]:
+            total_playtime = await self.total_func(*self.pagin_func_args)
+            total_playtime_str = await self.bot.stat_manager.get_playtime_str(playtime=total_playtime)
+
             embed = discord.Embed(
                 title=self.title,
-                description="\n".join(
-                    f"{start + i}. {item}"
-                    for i, item in enumerate(items, start=1)
-                ),
+                description=f"**Total Playtime: {total_playtime_str}**",
                 color=discord.Color.dark_gold()
             )
+
+            for i, item in enumerate(items, start=1):
+                playtime_str = await self.bot.stat_manager.get_playtime_str(playtime=item["playtime"])
+                embed.description += f"\n{start + i}. {item["name"]} - {playtime_str}"
+
             if self.thumbnail_url is not None:
                 embed.set_thumbnail(url=self.thumbnail_url)
+
             embed.set_footer(
                 text=f"Page {self.page + 1}/{self.max_page + 1}"
             )
         else:
             embed = discord.Embed(
                 title="Error",
-                description=items[1],
+                description=items[0]["error"],
                 color=red
             )
             embed.set_footer(
@@ -194,7 +201,8 @@ class LeaderboardCog(commands.Cog):
         view = PaginatedLeaderboard(
             bot=self.bot,
             author_id=interaction.user.id,
-            pagin_func=self.bot.leaderboard_manager.get_total_playtimes_paginated,
+            pagin_func=self.bot.leaderboard_manager.get_total_playtimes,
+            total_func=self.bot.leaderboard_manager.get_total_playtimes_total,
             pagin_func_args=[interaction.guild],
             entries=entries,
             title="All-Time Playtime Leaderboard",
@@ -209,19 +217,24 @@ class LeaderboardCog(commands.Cog):
         self,
         interaction: discord.Interaction
     ):
-        entries = await self.bot.leaderboard_manager.get_entries_ls_total_playtimes(interaction.guild)
-        view = PaginatedLeaderboard(
-            bot=self.bot,
-            author_id=interaction.user.id,
-            pagin_func=self.bot.leaderboard_manager.get_ls_total_playtimes_paginated,
-            pagin_func_args=[interaction.guild],
-            entries=entries,
-            title="Since-Last-Snapshot Playtime Leaderboard",
-            user_id=None,
-            per_page=10
-        )
-        await interaction.response.send_message(embed=await view.get_embed(), view=view)
-        view.message = await interaction.original_response()
+        try:
+            entries = await self.bot.leaderboard_manager.get_entries_ls_total_playtimes(interaction.guild)
+            view = PaginatedLeaderboard(
+                bot=self.bot,
+                author_id=interaction.user.id,
+                pagin_func=self.bot.leaderboard_manager.get_ls_total_playtimes,
+                total_func=self.bot.leaderboard_manager.get_ls_total_playtimes_total,
+                pagin_func_args=[interaction.guild],
+                entries=entries,
+                title="Since-Last-Snapshot Playtime Leaderboard",
+                user_id=None,
+                per_page=10
+            )
+            await interaction.response.send_message(embed=await view.get_embed(), view=view)
+            view.message = await interaction.original_response()
+        except:
+            import traceback
+            traceback.print_exc()
 
     @breakdown_game.command(name="all", description="Sends this server's all-time game playtime leaderboard")
     async def get_all_game_paginated(
@@ -232,7 +245,8 @@ class LeaderboardCog(commands.Cog):
         view = PaginatedLeaderboard(
             bot=self.bot,
             author_id=interaction.user.id,
-            pagin_func=self.bot.leaderboard_manager.get_agg_game_playtimes_paginated,
+            pagin_func=self.bot.leaderboard_manager.get_agg_game_playtimes,
+            total_func=self.bot.leaderboard_manager.get_agg_game_playtimes_total,
             pagin_func_args=[interaction.guild],
             entries=entries,
             title="All-Time Playtime Leaderboard",
@@ -251,7 +265,8 @@ class LeaderboardCog(commands.Cog):
         view = PaginatedLeaderboard(
             bot=self.bot,
             author_id=interaction.user.id,
-            pagin_func=self.bot.leaderboard_manager.get_agg_ls_game_playtimes_paginated,
+            pagin_func=self.bot.leaderboard_manager.get_agg_ls_game_playtimes,
+            total_func=self.bot.leaderboard_manager.get_agg_ls_game_playtimes_total,
             pagin_func_args=[interaction.guild],
             entries=entries,
             title="Since-Last-Snapshot Playtime Leaderboard",
@@ -273,7 +288,8 @@ class LeaderboardCog(commands.Cog):
             bot=self.bot,
             author_id=interaction.user.id,
             user_id=user_id,
-            pagin_func=self.bot.leaderboard_manager.get_game_playtimes_paginated,
+            pagin_func=self.bot.leaderboard_manager.get_game_playtimes,
+            total_func=self.bot.leaderboard_manager.get_game_playtimes_total,
             pagin_func_args=[interaction.guild, user_id],
             entries=entries,
             title="{display_name}'s Played Games",
@@ -294,7 +310,8 @@ class LeaderboardCog(commands.Cog):
             bot=self.bot,
             author_id=interaction.user.id,
             user_id=user_id,
-            pagin_func=self.bot.leaderboard_manager.get_ls_game_playtimes_paginated,
+            pagin_func=self.bot.leaderboard_manager.get_ls_game_playtimes,
+            total_func=self.bot.leaderboard_manager.get_ls_game_playtimes_total,
             pagin_func_args=[interaction.guild, user_id],
             entries=entries,
             title="{display_name}'s Played Games",
@@ -314,7 +331,8 @@ class LeaderboardCog(commands.Cog):
         view = PaginatedLeaderboard(
             bot=self.bot,
             author_id=interaction.user.id,
-            pagin_func=self.bot.leaderboard_manager.get_game_playtimes_breakdown_paginated,
+            pagin_func=self.bot.leaderboard_manager.get_game_playtimes_breakdown,
+            total_func=self.bot.leaderboard_manager.get_game_playtimes_breakdown_total,
             pagin_func_args=[interaction.guild, place_id],
             entries=entries,
             title="All-Time Leaderboard for {game_name}",
@@ -335,7 +353,8 @@ class LeaderboardCog(commands.Cog):
         view = PaginatedLeaderboard(
             bot=self.bot,
             author_id=interaction.user.id,
-            pagin_func=self.bot.leaderboard_manager.get_ls_game_playtimes_breakdown_paginated,
+            pagin_func=self.bot.leaderboard_manager.get_ls_game_playtimes_breakdown,
+            total_func=self.bot.leaderboard_manager.get_ls_game_playtimes_breakdown_total,
             pagin_func_args=[interaction.guild, place_id],
             entries=entries,
             title="Since-Last-Snapshot Leaderboard for {game_name}",

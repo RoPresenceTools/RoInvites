@@ -84,7 +84,24 @@ class LeaderboardManager:
                 ) playtimes
             """, guild_user_ids)
 
-    async def get_total_playtimes_paginated(self, guild, start):
+    async def get_total_playtimes_total(self, guild):
+        guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
+        async with self.pool.acquire() as conn:
+            return conn.fetchval("""
+                SELECT SUM(total_playtime)
+                FROM (
+                    SELECT
+                        t.user_id,
+                        COALESCE(t.total_playtime, 0)
+                        + COALESCE(EXTRACT(EPOCH FROM (NOW() - cp.start_time)), 0) AS total_playtime
+                    FROM total_playtimes t
+                    LEFT JOIN currently_playing cp
+                        ON cp.user_id = t.user_id
+                    WHERE t.user_id = ANY($1)
+                ) playtimes
+            """, guild_user_ids)
+
+    async def get_total_playtimes(self, guild, start):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
             rows = await conn.fetch("""
@@ -109,9 +126,8 @@ class LeaderboardManager:
             items = []
             for row in rows:
                 name = await self.bot.user_manager.get_display_name(row["user_id"])
-                playtime = await self.bot.stat_manager.get_playtime_str(playtime=row["total_playtime"])
-                items.append(f"{name} - {playtime}")
-                # items.append(f"{name} - {(row["total_playtime"] / 3600):.2f}h")
+                items.append({"name": name, "playtime": row["total_playtime"]})
+                # items.append(f"{name} - {playtime}")
                 
             return items
 
@@ -138,7 +154,30 @@ class LeaderboardManager:
                 WHERE total_playtime > 0
             """, snapshot_id, guild_user_ids)
 
-    async def get_ls_total_playtimes_paginated(self, guild, start):
+    async def get_ls_total_playtimes_total(self, guild):
+        snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
+        guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
+        async with self.pool.acquire() as conn:
+            return await conn.fetchval("""
+                SELECT SUM(total_playtime)
+                FROM (
+                    SELECT
+                        s.user_id,
+                        t.total_playtime
+                        - COALESCE(s.total_playtime, 0)
+                        + COALESCE(EXTRACT(EPOCH FROM (NOW() - cp.start_time)), 0) AS total_playtime
+                    FROM total_playtime_snapshots s
+                    LEFT JOIN total_playtimes t
+                        ON t.user_id = s.user_id
+                    LEFT JOIN currently_playing cp
+                        ON cp.user_id = s.user_id
+                    WHERE s.snapshot_id = $1
+                    AND s.user_id = ANY($2)
+                ) playtimes
+                WHERE total_playtime > 0
+            """, snapshot_id, guild_user_ids)
+
+    async def get_ls_total_playtimes(self, guild, start):
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
@@ -169,11 +208,9 @@ class LeaderboardManager:
             items = []
             for row in rows:
                 name = await self.bot.user_manager.get_display_name(row["user_id"])
-                playtime = await self.bot.stat_manager.get_playtime_str(playtime=row["total_playtime"])
-                items.append(f"{name} - {playtime}")
+                items.append({"name": name, "playtime": row["total_playtime"]})
             if len(rows) == 0:
-                items.append("|ERROR|")
-                items.append("No one has played any game since the last snapshot.")
+                items.append({"error": "No one has played any game since the last snapshot."})
 
             return items
 
@@ -189,14 +226,34 @@ class LeaderboardManager:
                 WHERE user_id = $1
             """, user_id)
 
-    async def get_game_playtimes_paginated(self, guild, user_id, start):
+    async def get_game_playtimes_total(self, guild, user_id):
         if guild != "NO_GUILD":
             guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
             if not user_id in guild_user_ids:
-                items = [
-                    "|ERROR|",
-                    "That user is not in this server."
-                ]
+                return 0
+
+        async with self.pool.acquire() as conn:
+            return await conn.fetchval("""
+                SELECT SUM(playtime)
+                FROM (
+                    SELECT
+                        g.user_id,
+                        g.place_id,
+                        COALESCE(g.playtime, 0)
+                        + COALESCE(EXTRACT(EPOCH FROM (NOW() - cp.start_time)), 0) AS playtime
+                    FROM game_playtimes g
+                    LEFT JOIN currently_playing cp
+                        ON cp.user_id = g.user_id
+                        AND cp.place_id = g.place_id
+                    WHERE g.user_id = $1
+                ) games_ranked
+            """, user_id)
+
+    async def get_game_playtimes(self, guild, user_id, start):
+        if guild != "NO_GUILD":
+            guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
+            if not user_id in guild_user_ids:
+                items = [{"error": "That user is not in this server."}]
                 return items
 
         async with self.pool.acquire() as conn:
@@ -225,8 +282,7 @@ class LeaderboardManager:
             items = []
             for row in rows:
                 name = await self.bot.api.get_game_name(row["place_id"])
-                playtime = await self.bot.stat_manager.get_playtime_str(playtime=row["playtime"])
-                items.append(f"{name} - {playtime}")
+                items.append({"name": name, "playtime": row["playtime"]})
 
             return items
 
@@ -259,13 +315,39 @@ class LeaderboardManager:
                 WHERE playtime > 0
             """, snapshot_id, user_id)
 
-    async def get_ls_game_playtimes_paginated(self, guild, user_id, start):
+    async def get_ls_game_playtimes_total(self, guild, user_id):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         if not user_id in guild_user_ids:
-            items = [
-                "|ERROR|",
-                "That user is not in this server."
-            ]
+            return 0
+
+        snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
+        async with self.pool.acquire() as conn:
+            return await conn.fetchval("""
+                SELECT SUM(playtime)
+                FROM (
+                    SELECT
+                        s.user_id,
+                        s.place_id,
+                        COALESCE(g.playtime, 0)
+                        + COALESCE(EXTRACT(EPOCH FROM (NOW() - cp.start_time)), 0)
+                        - s.playtime AS playtime
+                    FROM game_playtime_snapshots s
+                    LEFT JOIN game_playtimes g
+                        ON g.user_id = s.user_id
+                        AND g.place_id = s.place_id
+                    LEFT JOIN currently_playing cp
+                        ON cp.user_id = s.user_id
+                        AND cp.place_id = s.place_id
+                    WHERE s.snapshot_id = $1
+                    AND s.user_id = $2
+                ) games_ranked
+                WHERE playtime > 0
+            """, snapshot_id, user_id)
+
+    async def get_ls_game_playtimes(self, guild, user_id, start):
+        guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
+        if not user_id in guild_user_ids:
+            items = [{"error": "That user is not in this server."}]
             return items
 
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
@@ -301,11 +383,9 @@ class LeaderboardManager:
             items = []
             for row in rows:
                 name = await self.bot.api.get_game_name(row["place_id"])
-                playtime = await self.bot.stat_manager.get_playtime_str(playtime=row["playtime"])
-                items.append(f"{name} - {playtime}")
+                items.append({"name": name, "playtime": row["playtime"]})
             if len(rows) == 0:
-                items.append("|ERROR|")
-                items.append("This user hasn't played any games since the last snapshot.")
+                items.append({"error": "This user hasn't played any games since the last snapshot."})
 
             return items
 
@@ -331,7 +411,29 @@ class LeaderboardManager:
                 ) games_ranked
             """, guild_user_ids)
 
-    async def get_agg_game_playtimes_paginated(self, guild, start):
+    async def get_agg_game_playtimes_total(self, guild):
+        guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
+        async with self.pool.acquire() as conn:
+            return await conn.fetchval("""
+                SELECT SUM(playtime)
+                FROM (
+                    SELECT
+                        g.place_id,
+                        SUM(
+                            COALESCE(g.playtime, 0)
+                            + COALESCE(EXTRACT(EPOCH FROM (NOW() - cp.start_time)), 0)
+                        ) AS playtime
+                    FROM game_playtimes g
+                    LEFT JOIN currently_playing cp
+                        ON cp.user_id = g.user_id
+                        AND cp.place_id = g.place_id
+                    WHERE g.user_id = ANY($1)
+                    AND playtime > 0
+                    GROUP BY g.place_id
+                ) games_ranked
+            """, guild_user_ids)
+
+    async def get_agg_game_playtimes(self, guild, start):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
             rows = await conn.fetch("""
@@ -361,11 +463,9 @@ class LeaderboardManager:
             items = []
             for row in rows:
                 name = await self.bot.api.get_game_name(row["place_id"])
-                playtime = await self.bot.stat_manager.get_playtime_str(playtime=row["playtime"])
-                items.append(f"{name} - {playtime}")
+                items.append({"name": name, "playtime": row["playtime"]})
             if len(rows) == 0:
-                items.append("|ERROR|")
-                items.append("No one has played any games yet.")
+                items.append({"error": "No one has played any games yet."})
 
             return items
 
@@ -395,7 +495,33 @@ class LeaderboardManager:
                 WHERE playtime > 0
             """, snapshot_id)
 
-    async def get_agg_ls_game_playtimes_paginated(self, guild, start):
+    async def get_agg_ls_game_playtimes_total(self, guild):
+        snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
+        async with self.pool.acquire() as conn:
+            return await conn.fetchval("""
+                SELECT SUM(playtime)
+                FROM (
+                    SELECT
+                        s.place_id,
+                        SUM(
+                            COALESCE(g.playtime, 0)
+                            + COALESCE(EXTRACT(EPOCH FROM (NOW() - cp.start_time)), 0)
+                            - s.playtime
+                        ) AS playtime
+                    FROM game_playtime_snapshots s
+                    LEFT JOIN game_playtimes g
+                        ON g.user_id = s.user_id
+                        AND g.place_id = s.place_id
+                    LEFT JOIN currently_playing cp
+                        ON cp.user_id = s.user_id
+                        AND cp.place_id = s.place_id
+                    WHERE s.snapshot_id = $1
+                    GROUP BY s.place_id
+                ) games_ranked
+                WHERE playtime > 0
+            """, snapshot_id)
+
+    async def get_agg_ls_game_playtimes(self, guild, start):
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         async with self.pool.acquire() as conn:
             rows = await conn.fetch("""
@@ -429,8 +555,7 @@ class LeaderboardManager:
             items = []
             for row in rows:
                 name = await self.bot.api.get_game_name(row["place_id"])
-                playtime = await self.bot.stat_manager.get_playtime_str(playtime=row["playtime"])
-                items.append(f"{name} - {playtime}")
+                items.append({"name": name, "playtime": row["playtime"]})
             if len(rows) == 0:
                 items.append("|ERROR|")
                 items.append("No one has played any games since the last snapshot.")
@@ -457,7 +582,27 @@ class LeaderboardManager:
                 ) games_ranked
             """, guild_user_ids, place_id)
 
-    async def get_game_playtimes_breakdown_paginated(self, guild, place_id, start):
+    async def get_game_playtimes_breakdown_total(self, guild, place_id):
+        guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
+        async with self.pool.acquire() as conn:
+            return await conn.fetchval("""
+                SELECT SUM(playtime)
+                FROM (
+                    SELECT
+                        g.user_id,
+                        g.place_id,
+                        COALESCE(g.playtime, 0)
+                        + COALESCE(EXTRACT(EPOCH FROM (NOW() - cp.start_time)), 0) AS playtime
+                    FROM game_playtimes g
+                    LEFT JOIN currently_playing cp
+                        ON cp.user_id = g.user_id
+                        AND cp.place_id = g.place_id
+                    WHERE g.user_id = ANY($1)
+                    AND g.place_id = $2
+                ) games_ranked
+            """, guild_user_ids, place_id)
+
+    async def get_game_playtimes_breakdown(self, guild, place_id, start):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
             rows = await conn.fetch("""
@@ -486,12 +631,10 @@ class LeaderboardManager:
             items = []
             for row in rows:
                 name = await self.bot.user_manager.get_display_name(row["user_id"])
-                playtime = await self.bot.stat_manager.get_playtime_str(playtime=row["playtime"])
-                items.append(f"{name} - {playtime}")
+                items.append({"name": name, "playtime": row["playtime"]})
             if len(rows) == 0:
                 game_name = await self.bot.api.get_game_name(place_id)
-                items.append("|ERROR|")
-                items.append(f"No one has played *{game_name}* yet.")
+                items.append({"error": f"No one has played *{game_name}* yet."})
 
             return items
 
@@ -520,7 +663,32 @@ class LeaderboardManager:
                 WHERE playtime > 0
             """, snapshot_id, place_id)
 
-    async def get_ls_game_playtimes_breakdown_paginated(self, guild, place_id, start):
+    async def get_ls_game_playtimes_breakdown_total(self, guild, place_id):
+        snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
+        async with self.pool.acquire() as conn:
+            return await conn.fetchval("""
+                SELECT SUM(playtime)
+                FROM (
+                    SELECT
+                        s.user_id,
+                        s.place_id,
+                        COALESCE(g.playtime, 0)
+                        + COALESCE(EXTRACT(EPOCH FROM (NOW() - cp.start_time)), 0)
+                        - s.playtime AS playtime
+                    FROM game_playtime_snapshots s
+                    LEFT JOIN game_playtimes g
+                        ON g.user_id = s.user_id
+                        AND g.place_id = s.place_id
+                    LEFT JOIN currently_playing cp
+                        ON cp.user_id = s.user_id
+                        AND cp.place_id = s.place_id
+                    WHERE s.snapshot_id = $1
+                    AND s.place_id = $2
+                ) games_ranked
+                WHERE playtime > 0
+            """, snapshot_id, place_id)
+
+    async def get_ls_game_playtimes_breakdown(self, guild, place_id, start):
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         async with self.pool.acquire() as conn:
             rows = await conn.fetch("""
@@ -554,12 +722,10 @@ class LeaderboardManager:
             items = []
             for row in rows:
                 name = await self.bot.user_manager.get_display_name(row["user_id"])
-                playtime = await self.bot.stat_manager.get_playtime_str(playtime=row["playtime"])
-                items.append(f"{name} - {playtime}")
+                items.append({"name": name, "playtime": row["playtime"]})
             if len(rows) == 0:
                 game_name = await self.bot.api.get_game_name(place_id)
-                items.append("|ERROR|")
-                items.append(f"No one has played *{game_name}* since the last snapshot.")
+                items.append({"error": f"No one has played *{game_name}* since the last snapshot."})
 
             return items
 
@@ -574,13 +740,13 @@ class LeaderboardManager:
                 return ("Error", "You don't have a Roblox account associated with Roblox Invites.\nAdd one with `/user add`!")
 
         discord_user_id = await self.bot.user_manager.get_discord_id_from_user(user_id)
-        game_playtimes = await self.get_game_playtimes_paginated("NO_GUILD", user_id, 0)
+        game_playtimes = await self.get_game_playtimes("NO_GUILD", user_id, 0)
 
         if mode == "server":
             snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
             leaderboard_spot = await self.get_leaderboard_position(guild, user_id)
             ls_leaderboard_spot = await self.get_ls_leaderboard_position(guild, user_id)
-            ls_game_playtimes = await self.get_ls_game_playtimes_paginated(guild, user_id, 0)
+            ls_game_playtimes = await self.get_ls_game_playtimes(guild, user_id, 0)
 
         total = await self.bot.stat_manager.get_total_playtime(user_id)
         display_name = await self.bot.user_manager.get_display_name(user_id)
