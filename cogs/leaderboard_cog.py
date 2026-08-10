@@ -47,17 +47,17 @@ class PaginatedLeaderboard(discord.ui.View):
         start = self.page * self.per_page
         items = await self.pagin_func(*self.pagin_func_args, start)
 
-        if self.thumbnail_url is None:
-            if self.user_id is not None:
-                self.thumbnail_url = await self.bot.api.get_avatar_headshot(self.user_id)
-                display_name = await self.bot.user_manager.get_display_name(self.user_id)
-                self.title = self.title.replace("{display_name}", display_name)
-            elif self.place_id is not None:
-                self.thumbnail_url = await self.bot.api.get_game_icon(self.place_id)
-                game_name = await self.bot.api.get_game_name(self.place_id)
-                self.title = self.title.replace("{game_name}", game_name)
-
         if not "error" in items[0]:
+            if self.thumbnail_url is None:
+                if self.user_id is not None:
+                    self.thumbnail_url = await self.bot.api.get_avatar_headshot(self.user_id)
+                    display_name = await self.bot.user_manager.get_display_name(self.user_id)
+                    self.title = self.title.replace("{display_name}", display_name)
+                elif self.place_id is not None:
+                    self.thumbnail_url = await self.bot.api.get_game_icon(self.place_id)
+                    game_name = await self.bot.api.get_game_name(self.place_id)
+                    self.title = self.title.replace("{game_name}", game_name)
+
             total_playtime = await self.total_func(*self.pagin_func_args)
             total_playtime_str = await self.bot.stat_manager.get_playtime_str(playtime=total_playtime)
 
