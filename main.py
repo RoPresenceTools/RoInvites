@@ -14,8 +14,16 @@ patch_notes = """
 Updated from __v{0}__ to __v{1}__
 
 **Patch Notes:**
-- Added Discord usernames to user cards
 - Added avatar headshot images to invite embeds and user stat embeds
+- Added Discord usernames to user cards
+- Added paginated leaderboards
+    - You can now see more than just the top 10!
+   - `/leaderboard game_breakdown` gives the server's game playtime leaderboard.
+   - `/leaderboard user_breakdown` gives the server's user playtime leaderboard.
+   - `/leaderboard game` gives the leaderboard for a specific game.
+   - `/leaderboard user` gives the played games of a user in descending order of playtime.
+   - `/leaderboard profile` gives a profile card for a given user.
+    - This replaces `/server user_stats` and the concept of usercards entirely.
 """
 
 if not os.path.exists("./database/backups/"):
