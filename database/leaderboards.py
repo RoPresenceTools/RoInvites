@@ -491,7 +491,7 @@ class LeaderboardManager:
             if len(rows) == 0:
                 game_name = await self.bot.api.get_game_name(place_id)
                 items.append("|ERROR|")
-                items.append(f"No one has played **{game_name}** yet.")
+                items.append(f"No one has played *{game_name}* yet.")
 
             return items
 
@@ -559,7 +559,7 @@ class LeaderboardManager:
             if len(rows) == 0:
                 game_name = await self.bot.api.get_game_name(place_id)
                 items.append("|ERROR|")
-                items.append(f"No one has played **{game_name}** since the last snapshot.")
+                items.append(f"No one has played *{game_name}* since the last snapshot.")
 
             return items
 
