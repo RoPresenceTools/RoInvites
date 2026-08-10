@@ -73,9 +73,10 @@ class ServerCog(commands.Cog):
                 color=discord.Color.dark_gold() if message_title != "Error" else red
             )
 
-            thumbnail_url = await interaction.client.api.get_avatar_headshot(user_id)
-            if thumbnail_url is not None:
-                embed.set_thumbnail(url=thumbnail_url)
+            if message_title != "Error":
+                thumbnail_url = await interaction.client.api.get_avatar_headshot(user_id)
+                if thumbnail_url is not None:
+                    embed.set_thumbnail(url=thumbnail_url)
             await interaction.followup.send(embed=embed)
         except:
             import traceback
