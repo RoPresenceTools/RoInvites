@@ -41,7 +41,7 @@ class AdminCog(commands.Cog):
         interaction: discord.Interaction
     ):
         if not await self.bot.is_owner(interaction.user):
-            await interaction.response.send_message(f"You are not the bot owner.")
+            await interaction.response.send_message(f"You are not the bot owner.", ephemeral=True)
 
         await interaction.response.defer(ephemeral=True)
         success = await interaction.client.reload_extensions()
@@ -58,7 +58,7 @@ class AdminCog(commands.Cog):
         user_id: int
     ):
         if not await self.bot.is_owner(interaction.user):
-            await interaction.response.send_message(f"You are not the bot owner.")
+            await interaction.response.send_message(f"You are not the bot owner.", ephemeral=True)
 
         await interaction.response.defer(ephemeral=True)
         success = await interaction.client.user_manager.remove_user_id(user_id)
@@ -73,7 +73,7 @@ class AdminCog(commands.Cog):
         interaction: discord.Interaction
     ):
         if not await self.bot.is_owner(interaction.user):
-            await interaction.response.send_message(f"You are not the bot owner.")
+            await interaction.response.send_message(f"You are not the bot owner.", ephemeral=True)
 
         await interaction.response.defer(ephemeral=True)
         filename = datetime.now().strftime("backup_%m-%d-%Y_%H-%M-%S.sql")
@@ -91,7 +91,7 @@ class AdminCog(commands.Cog):
         announcement_text: str
     ):
         if not await self.bot.is_owner(interaction.user):
-            await interaction.response.send_message(f"You are not the bot owner.")
+            await interaction.response.send_message(f"You are not the bot owner.", ephemeral=True)
 
         await interaction.response.defer(ephemeral=True)
         for guild in self.bot.guilds:
