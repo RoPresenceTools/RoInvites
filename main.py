@@ -31,6 +31,7 @@ Updated from __v{0}__ to __v{1}__
     - Bot hosters can now test how an update patch notes message looks before pushing said update.
   - This command is mainly for development purposes.
 - Admin commands can now be run in DMs and servers without Roblox Invites installed
+- Increased the delay between tracker checks from 3s -> 4s
 - Migrated `/leaderboard [save | remove]` to `/snapshot [save | remove]`
 - Migrated `/user stats` to `/user my_stats`
 - Updated `/help` to correct the information regarding leaving a server
