@@ -25,6 +25,9 @@ Updated from __v{0}__ to __v{1}__
    - `/leaderboard profile` gives a profile card for a given user.
     - This replaces `/server user_stats` and the concept of usercards entirely.
 - Migrated `/leaderboard save | remove` to `/snapshot save | remove`
+
+- NOTE: The 1.x.x server migration tool has been removed from the GitHub repository.
+    - It is expected that you are on at least version 2.x.x.
 """
 
 if not os.path.exists("./database/backups/"):
