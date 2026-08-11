@@ -14,7 +14,7 @@ patch_notes = """
 Updated from __v{0}__ to __v{1}__
 
 **Patch Notes:**
-- Added avatar headshot images to invite embeds and user stat embeds
+- Added avatar headshot images to invite embeds, user stat embeds, and user leaderboards
 - Added game icon images to game leaderboards
 - Added Discord usernames to user cards
 - Added paginated leaderboards
