@@ -33,6 +33,7 @@ Updated from __v{0}__ to __v{1}__
 - Admin commands can now be run in DMs and servers without Roblox Invites installed
 - Migrated `/leaderboard [save | remove]` to `/snapshot [save | remove]`
 - Migrated `/user stats` to `/user my_stats`
+- Updated `/help` to correct the information regarding leaving a server
 
 **NOTE:** The 1.x.x server migration tool has been removed from the GitHub repository.
     - New bot hosters should use the latest stable 2.x.x version. You can still download the migration tool from the 2.4.1 release (source code).
