@@ -28,7 +28,7 @@ Updated from __v{0}__ to __v{1}__
     - Bot hosters can now reload the bot's cogs and most code without restarting the bot.
   - This command is mainly for development purposes. Bot updates should still be applied manually.
 - Added a new admin command: `/admin update_message`
-    - Bot hosters can now test to see how an update patch note message looks before pushing said update.
+    - Bot hosters can now test how an update patch notes message looks before pushing said update.
   - This command is mainly for development purposes.
 - Migrated `/leaderboard [save | remove]` to `/snapshot [save | remove]`
 - Migrated `/user stats` to `/user my_stats`
