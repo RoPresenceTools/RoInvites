@@ -80,7 +80,6 @@ class RobloxInvitesBot(commands.Bot):
         await self.reload_extension("cogs.server_cog")
         await self.reload_extension("cogs.snapshot_cog")
         await self.reload_extension("cogs.admin_cog")
-        await self.tree.sync()
 
         await interaction.followup.send("Successfully reloaded all extensions!")
         return True
