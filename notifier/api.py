@@ -166,6 +166,9 @@ class API:
             return user_data
 
     async def get_avatar_headshot(self, user_id):
+        if user_id is None:
+            return None
+
         thumbnail = await self.get_misc(f"https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds={user_id}&includeBackground=false&size=48x48&format=Png&isCircular=false")
         thumbnail_url = None
         if "data" in thumbnail:
@@ -174,6 +177,9 @@ class API:
         return thumbnail_url
 
     async def get_game_icon(self, place_id):
+        if place_id is None:
+            return None
+
         universe_id = await self.get_universe_id(place_id)
         thumbnail = await self.get_misc(f"https://thumbnails.roblox.com/v1/games/icons?universeIds={universe_id}&returnPolicy=PlaceHolder&size=50x50&format=Png&isCircular=false")
         thumbnail_url = None

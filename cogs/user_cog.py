@@ -60,7 +60,7 @@ class UserCog(commands.Cog):
 
     @user.command(name="my_stats", description="Shows your statistics")
     async def get_user_card_dms(
-        self, 
+        self,
         interaction: discord.Interaction
     ):
         await interaction.response.defer()
