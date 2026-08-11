@@ -26,15 +26,14 @@ Updated from __v{0}__ to __v{1}__
     - This replaces `/server user_stats` and the concept of usercards entirely.
 - Added a new admin command: `/admin reload`
     - Bot hosters can now reload the bot's cogs and most code without restarting the bot.
-   - This command is mainly for development purposes. Bot updates should still be applied manually.
+  - This command is mainly for development purposes. Bot updates should still be applied manually.
 - Added a new admin command: `/admin update_message`
     - Bot hosters can now test to see how an update patch note message looks before pushing said update.
-   - This command is mainly for development purposes.
+  - This command is mainly for development purposes.
 - Migrated `/leaderboard [save | remove]` to `/snapshot [save | remove]`
 
 **NOTE:** The 1.x.x server migration tool has been removed from the GitHub repository.
-    - New bot hosters should use the latest stable 2.x.x version.
-   - You can still download the migration tool from the 2.4.1 release (source code).
+    - New bot hosters should use the latest stable 2.x.x version. You can still download the migration tool from the 2.4.1 release (source code).
 """
 
 if not os.path.exists("./database/backups/"):
