@@ -24,10 +24,14 @@ Updated from __v{0}__ to __v{1}__
    - `/leaderboard user` gives the played games of a user in descending order of playtime.
    - `/leaderboard profile` gives a profile card for a given user.
     - This replaces `/server user_stats` and the concept of usercards entirely.
-- Migrated `/leaderboard save | remove` to `/snapshot save | remove`
+- Added a new admin command: `/admin reload`
+    - Bot hosters can now reload the bot's cogs and most code without restarting the bot.
+   - This command is mainly for development purposes. Bot updates should still be applied manually.
+- Migrated `/leaderboard [save | remove]` to `/snapshot [save | remove]`
 
 - NOTE: The 1.x.x server migration tool has been removed from the GitHub repository.
-    - It is expected that you are on at least version 2.x.x.
+    - New bot hosters should use the latest stable 2.x.x version.
+   - You can still download the migration tool from the 2.4.1 release (source code).
 """
 
 if not os.path.exists("./database/backups/"):
