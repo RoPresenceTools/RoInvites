@@ -30,7 +30,7 @@ class UserCog(commands.Cog):
         await interaction.response.defer(ephemeral=True)
         success = await interaction.client.user_manager.add_user(username, interaction.user)
         if success == True:
-            await interaction.followup.send(f"Successfully added you (@{username}) to Roblox Invites!")
+            await interaction.followup.send(f"Successfully added you (@{username}) to Roblox Invites!\nRun `/server link` in any server with me in it to participate in leaderboards and events!")
         else:
             await interaction.followup.send(success)
 
