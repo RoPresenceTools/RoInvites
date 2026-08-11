@@ -30,6 +30,7 @@ Updated from __v{0}__ to __v{1}__
 - Added a new admin command: `/admin update_message`
     - Bot hosters can now test how an update patch notes message looks before pushing said update.
   - This command is mainly for development purposes.
+- Admin commands can now be run in DMs and servers without Roblox Invites installed
 - Migrated `/leaderboard [save | remove]` to `/snapshot [save | remove]`
 - Migrated `/user stats` to `/user my_stats`
 
