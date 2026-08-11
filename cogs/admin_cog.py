@@ -35,7 +35,7 @@ class AdminCog(commands.Cog):
         )
     )
 
-    @admin.command(name="reload", description="Reloads all extensions (besides admin)")
+    @admin.command(name="reload", description="Reloads all extensions")
     async def admin_reload_extensions(
         self, 
         interaction: discord.Interaction
@@ -44,10 +44,8 @@ class AdminCog(commands.Cog):
             await interaction.response.send_message(f"You are not the bot owner.", ephemeral=True)
 
         await interaction.response.defer(ephemeral=True)
-        success = await interaction.client.reload_extensions()
-        if success == True:
-            await interaction.followup.send(f"Successfully reloaded all extensions!")
-        else:
+        success = await interaction.client.reload_extensions(interaction)
+        if success != True:
             await interaction.followup.send(f"Couldn't reload extensions.")
 
     @admin.command(name="remove", description="Removes a user from Roblox Invites")
@@ -109,6 +107,22 @@ class AdminCog(commands.Cog):
             except:
                 pass
         await interaction.followup.send("Successfully sent announcement!")
+
+    @admin.command(name="update_message", description="Shows the current update message")
+    async def send_update_message(
+        self, 
+        interaction: discord.Interaction
+    ):
+        if not await self.bot.is_owner(interaction.user):
+            await interaction.response.send_message(f"You are not the bot owner.", ephemeral=True)
+
+        embed = discord.Embed(
+            title="An update has been issued!",
+            description=self.bot.patch_notes.format(self.bot.version, self.bot.version),
+            color=discord.Color.blue()
+        )
+
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(AdminCog(bot))

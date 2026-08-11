@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class RobloxInvitesBot(commands.Bot):
-    def __init__(self, api):
+    def __init__(self, api, version, patch_notes):
         intents = discord.Intents.default()
         intents.message_content = True
         intents.members = True
@@ -15,6 +15,8 @@ class RobloxInvitesBot(commands.Bot):
         
         self.db = database.Database()
         self.api = api
+        self.version = version
+        self.patch_notes = patch_notes
 
     async def setup_hook(self):
         await self.api.start()
@@ -45,7 +47,7 @@ class RobloxInvitesBot(commands.Bot):
 
         await self.tree.sync()
 
-    async def reload_extensions(self):
+    async def reload_extensions(self, interaction):
         importlib.reload(database.users)
         importlib.reload(database.metadata)
         importlib.reload(database.transfers)
@@ -77,7 +79,9 @@ class RobloxInvitesBot(commands.Bot):
         await self.reload_extension("cogs.leaderboard_cog")
         await self.reload_extension("cogs.server_cog")
         await self.reload_extension("cogs.snapshot_cog")
+        await self.reload_extension("cogs.admin_cog")
 
+        await interaction.followup.send("Successfully reloaded all extensions!")
         return True
 
     async def on_ready(self):

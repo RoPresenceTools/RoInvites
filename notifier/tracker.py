@@ -4,10 +4,9 @@ from styling.ansi import *
 import discord
 
 class PresenceTracker:
-    def __init__(self, bot, version, patch_notes):
+    def __init__(self, bot):
         self.bot = bot
-        self.version = version
-        self.patch_notes = patch_notes
+        self.version = bot.version
 
     def clear(self):
         print("\033[2J\033[3J\033[H", end="")
@@ -25,7 +24,7 @@ class PresenceTracker:
 
                 embed = discord.Embed(
                     title="An update has been issued!",
-                    description=self.patch_notes.format(saved_version, self.version),
+                    description=self.bot.patch_notes.format(saved_version, self.version),
                     color=discord.Color.blue()
                 )
 
