@@ -769,7 +769,9 @@ class LeaderboardManager:
 
         games_to_list = 5 if mode == "server" else 10
         message_content += f"\n\n**Your Top {games_to_list} Games Overall:**"
-        if "error" not in game_playtimes[:games_to_list][0]:
+        if len(game_playtimes) == 0:
+            message_content += f"\nYou haven't played any games yet."
+        elif "error" not in game_playtimes[:games_to_list][0]:
             for i, item in enumerate(game_playtimes[:games_to_list]):
                 playtime_str = await self.bot.stat_manager.get_playtime_str(playtime=item["playtime"])
                 message_content += f"\n{i}. {item["name"]} - {playtime_str}"
@@ -779,7 +781,9 @@ class LeaderboardManager:
         if mode == "server":
             message_content += f"\n\n**Your Top 5 Games since Last Snapshot:**"
             if snapshot_id is not None:
-                if "error" not in ls_game_playtimes[:5][0]:
+                if len(ls_game_playtimes) == 0:
+                    message_content += "\nYou haven't played any games since the last snapshot was taken."
+                elif "error" not in ls_game_playtimes[:5][0]:
                     for i, item in enumerate(ls_game_playtimes[:5]):
                         playtime_str = await self.bot.stat_manager.get_playtime_str(playtime=item["playtime"])
                         message_content += f"\n{i}. {item["name"]} - {playtime_str}"

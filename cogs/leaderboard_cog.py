@@ -47,6 +47,8 @@ class PaginatedLeaderboard(discord.ui.View):
         start = self.page * self.per_page
         items = await self.pagin_func(*self.pagin_func_args, start)
 
+        if len(items) == 0:
+            items = [{"error": "There is no data for this user/game."}]
         if not "error" in items[0]:
             if self.thumbnail_url is None:
                 if self.user_id is not None:
