@@ -1,0 +1,16 @@
+SELECT SUM(playtime)
+FROM (
+    SELECT
+        g.place_id,
+        SUM(
+            COALESCE(g.playtime, 0)
+            + COALESCE(EXTRACT(EPOCH FROM (NOW() - cp.start_time)), 0)
+        ) AS playtime
+    FROM game_playtimes g
+    LEFT JOIN currently_playing cp
+        ON cp.user_id = g.user_id
+        AND cp.place_id = g.place_id
+    WHERE g.user_id = ANY($1)
+    AND playtime > 0
+    GROUP BY g.place_id
+) games_ranked
