@@ -17,9 +17,6 @@ Updated from __v{0}__ to __v{1}__
 - Leaderboard functions have been moved to their own .sql files
 - Since-last-snapshot leaderboards have been fixed
 - Other leaderboard fixes
-
-**NOTE:** The 1.x.x server migration tool has been removed from the GitHub repository.
-    - New bot hosters should use the latest stable 2.x.x version. You can still download the migration tool from the 2.4.1 release (source code).
 """
 
 if not os.path.exists("./database/backups/"):
