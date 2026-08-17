@@ -89,5 +89,8 @@ class RobloxInvitesBot(commands.Bot):
             await self.db.create_guild(guild)
         print(f"{self.user} is online and ready!")
 
+    async def on_guild_join(self, guild):
+        await self.db.create_guild(guild)
+
     async def on_member_remove(self, member):
         await self.user_manager.unlink_user(member, member.guild)

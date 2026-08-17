@@ -272,20 +272,24 @@ class LeaderboardCog(commands.Cog):
         self,
         interaction: discord.Interaction
     ):
-        entries = await self.bot.leaderboard_manager.get_entries_agg_ls_game_playtimes(interaction.guild)
-        view = PaginatedLeaderboard(
-            bot=self.bot,
-            author_id=interaction.user.id,
-            pagin_func=self.bot.leaderboard_manager.get_agg_ls_game_playtimes,
-            total_func=self.bot.leaderboard_manager.get_agg_ls_game_playtimes_total,
-            pagin_func_args=[interaction.guild],
-            entries=entries,
-            title="Since-Last-Snapshot Playtime Leaderboard",
-            user_id=None,
-            per_page=10
-        )
-        await interaction.response.send_message(embed=await view.get_embed(), view=view)
-        view.message = await interaction.original_response()
+        try:
+            entries = await self.bot.leaderboard_manager.get_entries_agg_ls_game_playtimes(interaction.guild)
+            view = PaginatedLeaderboard(
+                bot=self.bot,
+                author_id=interaction.user.id,
+                pagin_func=self.bot.leaderboard_manager.get_agg_ls_game_playtimes,
+                total_func=self.bot.leaderboard_manager.get_agg_ls_game_playtimes_total,
+                pagin_func_args=[interaction.guild],
+                entries=entries,
+                title="Since-Last-Snapshot Playtime Leaderboard",
+                user_id=None,
+                per_page=10
+            )
+            await interaction.response.send_message(embed=await view.get_embed(), view=view)
+            view.message = await interaction.original_response()
+        except:
+            import traceback
+            traceback.print_exc()
 
     @user.command(name="all", description="Shows a user's statistics in a given server for all games")
     @app_commands.autocomplete(user_id=user_autocomplete)

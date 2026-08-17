@@ -51,7 +51,7 @@ class PresenceTracker:
                     await self.bot.notifier.process_updates()
                     await self.bot.presence_manager.save_presences("old")
                     await self.bot.user_manager.remove_deleted_users()
-                await asyncio.sleep(4)
+                await asyncio.sleep(3)
                 times_checked += 1
             except aiohttp.client_exceptions.ClientOSError:
                 pass
