@@ -9,33 +9,14 @@ headers = {
     "Cookie": f".ROBLOSECURITY={os.environ["cookie"]}"
 }
 
-version = "2.5.0"
+version = "2.6.0"
 patch_notes = """
 Updated from __v{0}__ to __v{1}__
 
 **Patch Notes:**
-- Added avatar headshot images to invite embeds, user stat embeds, and user leaderboards
-- Added game icon images to game leaderboards
-- Added Discord usernames to user cards
-- Added paginated leaderboards
-    - You can now see more than just the top 10!
-   - `/leaderboard game_breakdown` gives the server's game playtime leaderboard.
-   - `/leaderboard user_breakdown` gives the server's user playtime leaderboard.
-   - `/leaderboard game` gives the leaderboard for a specific game.
-   - `/leaderboard user` gives the played games of a user in descending order of playtime.
-   - `/leaderboard profile` gives a profile card for a given user.
-    - This replaces `/server user_stats` and the concept of usercards entirely.
-- Added a new admin command: `/admin reload`
-    - Bot hosters can now reload the bot's cogs and most code without restarting the bot.
-  - This command is mainly for development purposes. Bot updates should still be applied manually.
-- Added a new admin command: `/admin update_message`
-    - Bot hosters can now test how an update patch notes message looks before pushing said update.
-  - This command is mainly for development purposes.
-- Admin commands can now be run in DMs and servers without Roblox Invites installed
-- Increased the delay between tracker checks from 3s -> 4s
-- Migrated `/leaderboard [save | remove]` to `/snapshot [save | remove]`
-- Migrated `/user stats` to `/user my_stats`
-- Updated `/help` to correct the information regarding leaving a server
+- Leaderboard functions have been moved to their own .sql files
+- Since-last-snapshot leaderboards have been fixed
+- Other leaderboard fixes
 
 **NOTE:** The 1.x.x server migration tool has been removed from the GitHub repository.
     - New bot hosters should use the latest stable 2.x.x version. You can still download the migration tool from the 2.4.1 release (source code).
