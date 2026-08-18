@@ -1,4 +1,3 @@
-import os
 import asyncpg
 import getpass
 from pathlib import Path
@@ -21,16 +20,15 @@ class Database:
         )
     
     async def create_tables(self):
-        schema_path = Path(__file__).parent / ".." / "database" / "schema.sql"
+        schema_path = Path(__file__).parent / "schema.sql"
         async with self.pool.acquire() as conn:
             await conn.execute(schema_path.read_text())
 
     async def apply_migrations(self):
-        schema_path = Path(__file__).parent / ".." / "database" / "migrations"
-        for migration_sql in os.listdir(schema_path):
-            async with self.pool.acquire() as conn:
-                migration_sql_path = Path(__file__).parent / ".." / "database" / "migrations" / migration_sql
-                await conn.execute(migration_sql_path.read_text())
+        migration_path = Path(__file__).parent / "migrations"
+        async with self.pool.acquire() as conn:
+            for migration_sql in migration_path.glob("*.sql"):
+                await conn.execute(migration_sql.read_text())
 
     async def create_guild(self, guild):
         async with self.pool.acquire() as conn:
