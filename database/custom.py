@@ -1,39 +1,25 @@
+import database
+
 class CGTManager:
     def __init__(self, pool, api):
         self.pool = pool
         self.api = api
+        self.queries = database.load_sql("custom")
 
     async def get_custom_title(self, guild, universe_id):
         if await self.check_custom_title(guild, universe_id):
             async with self.pool.acquire() as conn:
-                row = await conn.fetchrow("""
-                    SELECT *
-                    FROM custom_titles
-                    WHERE guild_id = $1
-                    AND universe_id = $2
-                """, guild.id, universe_id)
-            return row
+                row = await conn.fetchrow(self.queries["get_custom_title"], guild.id, universe_id)
+                return row
 
     async def get_custom_title_rpid(self, guild, root_place_id):
         async with self.pool.acquire() as conn:
-            row = await conn.fetchrow("""
-                SELECT *
-                FROM custom_titles
-                WHERE guild_id = $1
-                AND root_place_id = $2
-            """, guild.id, root_place_id)
-        return row
+            row = await conn.fetchrow(self.queries["get_custom_title_rpid"], guild.id, root_place_id)
+            return row
 
     async def check_custom_title(self, guild, universe_id):
         async with self.pool.acquire() as conn:
-            exists = await conn.fetchval("""
-                SELECT EXISTS (
-                    SELECT 1
-                    FROM custom_titles
-                    WHERE guild_id = $1
-                    AND universe_id = $2
-                )
-            """, guild.id, universe_id)
+            exists = await conn.fetchval(self.queries["check_custom_title"], guild.id, universe_id)
             return exists
 
     async def add_custom_title(self, place_id, title, hex_color, guild):
@@ -64,13 +50,7 @@ class CGTManager:
 
         print(guild.id, universe_id, title, hex_color, game_name, root_place_id)
         async with self.pool.acquire() as conn:
-            added = await conn.fetchval("""
-                INSERT INTO custom_titles (guild_id, universe_id, title, color, game_name, root_place_id)
-                VALUES ($1, $2, $3, $4, $5, $6)
-                ON CONFLICT (guild_id, universe_id)
-                DO NOTHING
-                RETURNING guild_id
-            """, guild.id, universe_id, title, hex_color, game_name, root_place_id)
+            added = await conn.fetchval(self.queries["add_custom_title"], guild.id, universe_id, title, hex_color, game_name, root_place_id)
             if added:
                 return True
             else:
@@ -81,12 +61,7 @@ class CGTManager:
 
         if await self.check_custom_title(guild, universe_id):
             async with self.pool.acquire() as conn:
-                success = await conn.fetchval("""
-                    DELETE FROM custom_titles
-                    WHERE guild_id = $1
-                    AND universe_id = $2
-                    RETURNING universe_id
-                """, guild.id, universe_id)
+                success = await conn.fetchval(self.queries["remove_custom_title"], guild.id, universe_id)
                 
                 if success is None:
                     return False
@@ -94,11 +69,5 @@ class CGTManager:
 
     async def get_cgt_games(self, guild, query):
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch("""
-                SELECT *
-                FROM custom_titles
-                WHERE guild_id = $1
-                AND game_name ILIKE '%' || $2 || '%'
-                LIMIT 25
-            """, guild.id, query)
+            rows = await conn.fetch(self.queries["get_cgt_games"], guild.id, query)
             return rows

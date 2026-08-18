@@ -1,14 +1,10 @@
-import os
-
-os.chdir(os.path.dirname(__file__))
+from pathlib import Path
 
 def load_sql(namespace):
     queries = {}
-    for sql_file in os.listdir(f"./sql/{namespace}/"):
-        if not sql_file.endswith(".sql"):
-            continue
-
-        data = open(f"./sql/{namespace}/{sql_file}").read()
+    sql_path = Path(__file__).parent / "sql" / namespace
+    for sql_file in sql_path.glob("*.sql"):
+        data = sql_file.read_text()
         raw_queries = data.split("-- query: ")
         del raw_queries[0]
 
