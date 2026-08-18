@@ -308,3 +308,80 @@ class LeaderboardManager:
                 message_content += "\nNo snapshots have been saved."
 
         return (message_title, message_content)
+
+    async def legacy_get_user_leaderboard(self, total, total_playtimes, agg_game_playtimes):
+        message_content = f"\n**Total Server Playtime:** {total / 3600:.2f}h"
+        message_content += f"\n**Playtime for Top 10 Users:**"
+        for i, playtime in enumerate(total_playtimes[:10], start=1):
+            message_content += f"\n[#{i}] {playtime["name"]} ({playtime["playtime"] / 3600:.2f}h)"
+
+        message_content += f"\n\n**Playtime for Top 10 Games:**"
+        for i, game in enumerate(agg_game_playtimes[:10], start=1):
+            message_content += f"\n[#{i}] {game["name"]}: {game["playtime"] / 3600:.2f}h"
+        
+        return message_content
+
+    async def legacy_get_game_leaderboard(self, root_place_id, total, game_playtimes_breakdown):
+        await self.api.cache_id(root_place_id)
+        name = await self.api.get_game_name(root_place_id)
+        message_title = f"Leaderboard for {name}"
+        message_content = f"\n**Total Server Playtime:** {total / 3600:.2f}h"
+
+        message_content += f"\n**Playtime for Top 20 Users:**"
+        for i, playtime in enumerate(game_playtimes_breakdown[:20], start=1):
+            message_content += f"\n[#{i}] {playtime["name"]} ({playtime["playtime"] / 3600:.2f}h)"
+        
+        return (message_title, message_content)
+
+    async def legacy_get_alltime_user_leaderboard(self, guild):
+        total = await self.get_total_playtimes_total(guild)
+        total_playtimes = await self.get_total_playtimes(guild, 0)
+        agg_game_playtimes = await self.get_agg_game_playtimes(guild, 0)
+
+        message_title = "All-Time Playtime Leaderboard"
+        message_content = await self.legacy_get_user_leaderboard(total, total_playtimes, agg_game_playtimes)
+
+        return (message_title, message_content)
+
+    async def legacy_get_ls_user_leaderboard(self, guild):
+        ls_total = await self.get_ls_total_playtimes_total(guild)
+        ls_total_playtimes = await self.get_ls_total_playtimes(guild, 0)
+        ls_agg_game_playtimes = await self.get_agg_ls_game_playtimes(guild, 0)
+
+        if "error" not in ls_total_playtimes[0] and "error" not in ls_agg_game_playtimes[0]:
+            message_title = "Playtime Leaderboard since Last Snapshot"
+            message_content = await self.legacy_get_user_leaderboard(ls_total, ls_total_playtimes, ls_agg_game_playtimes)
+        elif "error" in ls_total_playtimes[0]:
+            message_title, message_content = ("Error", ls_total_playtimes[0]["error"])
+        elif "error" in ls_agg_game_playtimes[0]:
+            message_title, message_content = ("Error", ls_agg_game_playtimes[0]["error"])
+
+        return (message_title, message_content)
+
+    async def legacy_get_alltime_game_leaderboard(self, guild, root_place_id):
+        if not await self.bot.stat_manager.check_if_game_played(guild, root_place_id):
+            return ("Error", "This game doesn't exist.")
+
+        total = await self.get_game_playtimes_breakdown_total(guild, root_place_id)
+        game_playtimes_breakdown = await self.get_game_playtimes_breakdown(guild, root_place_id, 0)
+
+        if "error" not in game_playtimes_breakdown[0]:
+            message_title, message_content = await self.legacy_get_game_leaderboard(root_place_id, total, game_playtimes_breakdown)
+        else:
+            message_title, message_content = ("Error", game_playtimes_breakdown[0]["error"])
+
+        return (message_title, message_content)
+
+    async def legacy_get_ls_game_leaderboard(self, guild, root_place_id):
+        if not await self.bot.stat_manager.check_if_game_played(guild, root_place_id):
+            return ("Error", "This game doesn't exist.")
+
+        total = await self.get_ls_game_playtimes_breakdown_total(guild, root_place_id)
+        ls_game_playtimes_breakdown = await self.get_ls_game_playtimes_breakdown(guild, root_place_id, 0)
+        if "error" not in ls_game_playtimes_breakdown[0]:
+            message_title, message_content = await self.legacy_get_game_leaderboard(root_place_id, total, ls_game_playtimes_breakdown)
+            message_title = f"{message_title} since Last Snapshot"
+        else:
+            message_title, message_content = ("Error", ls_game_playtimes_breakdown[0]["error"])
+
+        return (message_title, message_content)
