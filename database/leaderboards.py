@@ -5,7 +5,7 @@ class LeaderboardManager:
         self.pool = pool
         self.bot = bot
         self.api = api
-        self.queries = database.load_sql("leaderboards")
+        self.queries = database.load_dir("leaderboards")
 
     async def get_leaderboard_position(self, guild, user_id):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)

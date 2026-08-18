@@ -5,7 +5,7 @@ class SnapshotManager:
         self.pool = pool
         self.bot = bot
         self.api = api
-        self.queries = database.load_sql("snapshots")
+        self.queries = database.load_sql("snapshots.sql")
 
     async def get_total_playtimes_unfiltered(self, user_ids):
         async with self.pool.acquire() as conn:

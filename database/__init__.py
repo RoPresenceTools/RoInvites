@@ -9,4 +9,4 @@ from .stats import StatManager
 from .snapshots import SnapshotManager
 from .leaderboards import LeaderboardManager
 from .metadata import MetadataManager
-from .load_sql import load_sql
+from .load_sql import load_sql, load_dir

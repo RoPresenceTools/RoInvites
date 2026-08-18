@@ -6,7 +6,7 @@ class StatManager:
         self.pool = pool
         self.api = api
         self.user_manager = user_manager
-        self.queries = database.load_sql("stats")
+        self.queries = database.load_sql("stats.sql")
         
     async def check_currently_playing(self, user_id):
         async with self.pool.acquire() as conn:

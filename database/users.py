@@ -1,88 +1,51 @@
+import database
+
 class UserManager:
     def __init__(self, pool, api):
         self.pool = pool
         self.api = api
+        self.queries = database.load_dir("users")
 
     async def get_display_name(self, user_id):
         async with self.pool.acquire() as conn:
-            return await conn.fetchval("""
-                SELECT display_name
-                FROM users
-                WHERE user_id = $1
-            """, user_id)
+            return await conn.fetchval(self.queries["get_display_name"], user_id)
 
     async def get_username(self, user_id):
         async with self.pool.acquire() as conn:
-            return await conn.fetchval("""
-                SELECT username
-                FROM users
-                WHERE user_id = $1
-            """, user_id)
+            return await conn.fetchval(self.queries["get_username"], user_id)
 
     async def get_freeze_status(self, user_id):
         async with self.pool.acquire() as conn:
-            return await conn.fetchval("""
-                SELECT frozen
-                FROM users
-                WHERE user_id = $1
-            """, user_id)
+            return await conn.fetchval(self.queries["get_freeze_status"], user_id)
 
     async def get_freeze_invites_status(self, guild, user_id):
         async with self.pool.acquire() as conn:
-            return await conn.fetchval("""
-                SELECT freeze_invites
-                FROM subscriptions
-                WHERE guild_id = $1
-                AND user_id = $2
-            """, guild.id, user_id)
+            return await conn.fetchval(self.queries["get_freeze_invites_status"], guild.id, user_id)
 
     async def get_guild_users(self, guild):
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(f"""
-                SELECT u.*
-                FROM users AS u
-                JOIN subscriptions AS s
-                    ON u.user_id = s.user_id
-                WHERE s.guild_id = $1
-            """, guild.id)
+            rows = await conn.fetch(self.queries["get_guild_users"], guild.id)
 
         return rows
 
     async def get_guild_user_ids(self, guild):
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch("""
-                SELECT user_id
-                FROM subscriptions
-                WHERE guild_id = $1
-                ORDER BY user_id
-            """, guild.id)
+            rows = await conn.fetch(self.queries["get_guild_user_ids"], guild.id)
         
         user_ids = [row["user_id"] for row in rows]
         return user_ids
 
     async def get_user_from_discord_id(self, discord_user):
         async with self.pool.acquire() as conn:
-            return await conn.fetchval("""
-                SELECT user_id
-                FROM users
-                WHERE discord_id = $1
-            """, discord_user.id)
+            return await conn.fetchval(self.queries["get_user_from_discord_id"], discord_user.id)
 
     async def get_discord_id_from_user(self, user_id):
         async with self.pool.acquire() as conn:
-            return await conn.fetchval("""
-                SELECT discord_id
-                FROM users
-                WHERE user_id = $1
-            """, user_id)
+            return await conn.fetchval(self.queries["get_discord_id_from_user"], user_id)
 
     async def get_all_users(self):
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch("""
-                SELECT *
-                FROM users
-                ORDER BY user_id
-            """)
+            rows = await conn.fetch(self.queries["get_all_users"])
         users = {
             row["user_id"]: row
             for row in rows
@@ -91,11 +54,7 @@ class UserManager:
 
     async def get_all_user_ids(self):
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch("""
-                SELECT user_id
-                FROM users
-                ORDER BY user_id
-            """)
+            rows = await conn.fetch(self.queries["get_all_user_ids"])
         user_ids = [row["user_id"] for row in rows]
         return user_ids
 
@@ -111,23 +70,9 @@ class UserManager:
         display_name = req["data"][0]["displayName"]
 
         async with self.pool.acquire() as conn:
-            user_exists_in_ri = await conn.fetchval("""
-                SELECT EXISTS (
-                    SELECT 1
-                    FROM users
-                    WHERE user_id = $1
-                )
-            """, user_id)
-            prev_discord = await conn.fetchrow("""
-                SELECT *
-                FROM users
-                WHERE discord_id = $1
-            """, discord_user.id)
-            prev_roblox = await conn.fetchrow("""
-                SELECT *
-                FROM users
-                WHERE user_id = $1
-            """, user_id)
+            user_exists_in_ri = await conn.fetchval(self.queries["user_exists_in_ri"], user_id)
+            prev_discord = await conn.fetchrow(self.queries["prev_discord"], discord_user.id)
+            prev_roblox = await conn.fetchrow(self.queries["prev_roblox"], user_id)
 
             if not None in (prev_discord, prev_roblox):
                 if prev_discord == prev_roblox:
@@ -150,40 +95,21 @@ class UserManager:
                 if user_data["description"].lower().strip() != "i confirm that i am joining the invites program.":
                     return f"**You must verify that the following account (@{username}) is yours.**\nPlease set `I confirm that I am joining the Invites program.` as your Roblox account description and try again.\nYou can edit your description [here](<https://www.roblox.com/users/profile/edit>)."
 
-            await conn.execute("""
-                INSERT INTO users (user_id, discord_id, username, display_name)
-                VALUES ($1, $2, $3, $4)
-                ON CONFLICT (user_id)
-                DO UPDATE SET
-                    username = EXCLUDED.username,
-                    display_name = EXCLUDED.display_name
-            """, user_id, discord_user.id, username, display_name)
+            await conn.execute(self.queries["add_user"], user_id, discord_user.id, username, display_name)
         return True
 
     async def remove_user(self, discord_user):
         async with self.pool.acquire() as conn:
-            user_id = await conn.fetchval("""
-                SELECT user_id
-                FROM users
-                WHERE discord_id = $1
-            """, discord_user.id)
+            user_id = await conn.fetchval(self.queries["get_user_from_discord_id"], discord_user.id)
             if user_id is None:
                 return False
 
-            await conn.execute("""
-                UPDATE users
-                SET erased = 1
-                WHERE user_id = $1
-            """, user_id)
+            await conn.execute(self.queries["remove_user"], user_id)
         return True
 
     async def remove_user_id(self, user_id):
         async with self.pool.acquire() as conn:
-            await conn.execute("""
-                UPDATE users
-                SET erased = 1
-                WHERE user_id = $1
-            """, user_id)
+            await conn.execute(self.queries["remove_user"], user_id)
         return True
 
     async def link_user(self, discord_user, guild):
@@ -192,41 +118,21 @@ class UserManager:
             return "You don't have a Roblox account associated with Roblox Invites.\nAdd one with `/user add`!"
 
         async with self.pool.acquire() as conn:
-            user_exists_in_guild = await conn.fetchval("""
-                SELECT EXISTS (
-                    SELECT 1
-                    FROM subscriptions
-                    WHERE guild_id = $1
-                    AND user_id = $2
-                )
-            """, guild.id, user_id)
+            user_exists_in_guild = await conn.fetchval(self.queries["user_exists_in_guild"], guild.id, user_id)
 
             if user_exists_in_guild:
                 return f"You are already in in this server."
 
-            await conn.execute("""
-                INSERT INTO subscriptions (guild_id, user_id)
-                VALUES ($1, $2)
-                ON CONFLICT (guild_id, user_id)
-                DO NOTHING
-            """, guild.id, user_id)
+            await conn.execute(self.queries["link_user"], guild.id, user_id)
         return True
 
     async def unlink_user(self, discord_user, guild):
         async with self.pool.acquire() as conn:
-            user_id = await conn.fetchval("""
-                SELECT user_id
-                FROM users
-                WHERE discord_id = $1
-            """, discord_user.id)
+            user_id = await conn.fetchval(self.queries["get_user_from_discord_id"], discord_user.id)
             if user_id is None:
                 return False
 
-            await conn.execute("""
-                DELETE FROM subscriptions
-                WHERE guild_id = $1
-                AND user_id = $2
-            """, guild.id, user_id)
+            await conn.execute(self.queries["unlink_user"], guild.id, user_id)
         return True
 
     async def modify_server_invites(self, discord_user, guild, value):
@@ -235,24 +141,12 @@ class UserManager:
             return "You don't have a Roblox account associated with Roblox Invites.\nAdd one with `/user add`!"
 
         async with self.pool.acquire() as conn:
-            user_exists_in_guild = await conn.fetchval("""
-                SELECT EXISTS (
-                    SELECT 1
-                    FROM subscriptions
-                    WHERE guild_id = $1
-                    AND user_id = $2
-                )
-            """, guild.id, user_id)
+            user_exists_in_guild = await conn.fetchval(self.queries["user_exists_in_guild"], guild.id, user_id)
 
             if not user_exists_in_guild:
                 return f"You are not in this server."
 
-            await conn.execute("""
-                UPDATE subscriptions
-                SET freeze_invites = $3
-                WHERE guild_id = $1
-                AND user_id = $2
-            """, guild.id, user_id, value)
+            await conn.execute(self.queries["modify_server_invites"], guild.id, user_id, value)
         return True
 
     async def modify_freeze_user(self, discord_user, value):
@@ -261,66 +155,23 @@ class UserManager:
             return "You don't have a Roblox account associated with Roblox Invites.\nAdd one with `/user add`!"
 
         async with self.pool.acquire() as conn:
-            await conn.execute("""
-                UPDATE users
-                SET frozen = $2
-                WHERE user_id = $1
-            """, user_id, value)
+            await conn.execute(self.queries["modify_freeze_user"], user_id, value)
         return True
 
     async def remove_deleted_users(self):
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch("""
-                SELECT user_id
-                FROM users
-                WHERE erased = 1
-            """)
+            rows = await conn.fetch(self.queries["get_deleted_users"])
             if rows is None:
                 return
             deleted_user_ids = [row["user_id"] for row in rows]
 
-            await conn.execute("""
-                DELETE FROM subscriptions
-                WHERE user_id = ANY($1)
-            """, deleted_user_ids)
-
-            await conn.execute("""
-                DELETE FROM users
-                WHERE user_id = ANY($1)
-            """, deleted_user_ids)
-
-            await conn.execute("""
-                DELETE FROM currently_playing
-                WHERE user_id = ANY($1)
-            """, deleted_user_ids)
-
-            await conn.execute("""
-                DELETE FROM game_playtimes
-                WHERE user_id = ANY($1)
-            """, deleted_user_ids)
-
-            await conn.execute("""
-                DELETE FROM total_playtimes
-                WHERE user_id = ANY($1)
-            """, deleted_user_ids)
-
-            await conn.execute("""
-                DELETE FROM presences
-                WHERE user_id = ANY($1)
-            """, deleted_user_ids)
-
-            await conn.execute("""
-                DELETE FROM old_presences
-                WHERE user_id = ANY($1)
-            """, deleted_user_ids)
+            categories = ["subscriptions", "users", "currently_playing", "game_playtimes", "total_playtimes", "presences", "old_presences"]
+            for category in categories:
+                await conn.execute(self.queries[f"remove_deleted_{category}"], deleted_user_ids)
 
     async def update_user_info(self, discord_user):
         async with self.pool.acquire() as conn:
-            user_id = await conn.fetchval("""
-                SELECT user_id
-                FROM users
-                WHERE discord_id = $1
-            """, discord_user.id)
+            user_id = await conn.fetchval(self.queries["get_user_from_discord_id"], discord_user.id)
             if user_id is None:
                 return f"You don't have a Roblox account associated with Roblox Invites.\nAdd one with `/user add`!"
 
@@ -333,12 +184,5 @@ class UserManager:
         display_name = req["data"][0]["displayName"]
 
         async with self.pool.acquire() as conn:
-            await conn.execute("""
-                INSERT INTO users (user_id, discord_id, username, display_name)
-                VALUES ($1, $2, $3, $4)
-                ON CONFLICT (user_id)
-                DO UPDATE SET
-                    username = EXCLUDED.username,
-                    display_name = EXCLUDED.display_name
-            """, user_id, discord_user.id, username, display_name)
+            await conn.execute(self.queries["update_user_info"], user_id, discord_user.id, username, display_name)
         return True

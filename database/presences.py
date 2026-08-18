@@ -5,7 +5,7 @@ class PresenceManager:
         self.pool = pool
         self.api = api
         self.user_manager = user_manager
-        self.queries = database.load_sql("presences")
+        self.queries = database.load_sql("presences.sql")
 
     async def save_presences(self, presence_type):
         user_ids = await self.user_manager.get_all_user_ids()
