@@ -1,8 +1,11 @@
+import database
+
 class PresenceManager:
     def __init__(self, pool, api, user_manager):
         self.pool = pool
         self.api = api
         self.user_manager = user_manager
+        self.queries = database.load_sql("presences")
 
     async def save_presences(self, presence_type):
         user_ids = await self.user_manager.get_all_user_ids()
@@ -15,10 +18,7 @@ class PresenceManager:
             presences = api_presences["userPresences"]
         elif presence_type == "old":
             async with self.pool.acquire() as conn:
-                presences = await conn.fetch(f"""
-                    SELECT *
-                    FROM presences
-                """)
+                presences = await conn.fetch(self.queries["get_all_presences"])
 
         presence_records = [
             (
@@ -33,51 +33,19 @@ class PresenceManager:
         ]
 
         async with self.pool.acquire() as conn:
-            await conn.executemany(f"""
-                INSERT INTO {"old_presences" if presence_type == "old" else "presences"} (user_id, last_location, place_id, root_place_id, game_instance_id, user_status)
-                VALUES ($1, $2, $3, $4, $5, $6)
-                ON CONFLICT (user_id)
-                DO UPDATE SET
-                    last_location = EXCLUDED.last_location,
-                    place_id = EXCLUDED.place_id,
-                    root_place_id = EXCLUDED.root_place_id,
-                    game_instance_id = EXCLUDED.game_instance_id,
-                    user_status = EXCLUDED.user_status
-            """, presence_records)
+            await conn.executemany(self.queries[f"save_{presence_type}_presences"], presence_records)
 
     async def erase_presence(self, user_id):
         async with self.pool.acquire() as conn:
-            await conn.execute(f"""
-                INSERT INTO presences (user_id, last_location, place_id, root_place_id, game_instance_id, user_status)
-                VALUES ($1, $2, $3, $4, $5, $6)
-                ON CONFLICT (user_id)
-                DO UPDATE SET
-                    last_location = EXCLUDED.last_location,
-                    place_id = EXCLUDED.place_id,
-                    root_place_id = EXCLUDED.root_place_id,
-                    game_instance_id = EXCLUDED.game_instance_id,
-                    user_status = EXCLUDED.user_status
-            """, user_id, None, None, None, None, 0)
+            await conn.execute(self.queries["erase_presence"], user_id, None, None, None, None, 0)
 
     async def get_presence(self, user_id):
         async with self.pool.acquire() as conn:
-            return await conn.fetchrow("""
-                SELECT *
-                FROM presences
-                WHERE user_id = $1
-            """, user_id)
+            return await conn.fetchrow(self.queries["get_presence"], user_id)
 
     async def get_guild_presences(self, guild, presence_type):
-        table = "old_presences" if presence_type == "old" else "presences"
-    
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(f"""
-                SELECT p.*
-                FROM {table} AS p
-                JOIN subscriptions AS s
-                    ON p.user_id = s.user_id
-                WHERE s.guild_id = $1
-            """, guild.id)
+            rows = await conn.fetch(self.queries[f"get_{presence_type}_guild_presences"], guild.id)
         
         if len(rows) > 0:
             presences = {
@@ -100,18 +68,11 @@ class PresenceManager:
 
     async def get_all_presences(self, presence_type):
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch("""
-                SELECT *
-                FROM users
-            """)
+            rows = await conn.fetch(self.queries["get_all_users"])
         
         user_ids = [row["user_id"] for row in rows]
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(f"""
-                SELECT *
-                FROM {"old_presences" if presence_type == "old" else "presences"}
-                WHERE user_id = ANY($1)
-            """, user_ids)
+            rows = await conn.fetch(self.queries[f"get_all_{presence_type}_presences"], user_ids)
         
         presences = {
             row["user_id"]: row
@@ -123,13 +84,7 @@ class PresenceManager:
     async def check_joins(self, guild, user_id, place_id, game_instance_id):
         joined = []
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(f"""
-                SELECT user_id
-                FROM presences
-                WHERE place_id = $1
-                AND game_instance_id = $2
-                AND NOT user_id = $3
-            """, place_id, game_instance_id, user_id)
+            rows = await conn.fetch(self.queries["check_joins"], place_id, game_instance_id, user_id)
             guild_users = await self.user_manager.get_guild_users(guild)
             joined_user_ids = [row["user_id"] for row in rows]
 
