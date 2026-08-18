@@ -1,13 +1,16 @@
+import database
+
 class LeaderboardManager:
     def __init__(self, pool, bot, api):
         self.pool = pool
         self.bot = bot
         self.api = api
+        self.queries = database.load_sql("leaderboards")
 
     async def get_leaderboard_position(self, guild, user_id):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
-            leaderboard_spot = await conn.fetchval(open("database/sql/get_leaderboard_position.sql").read(), guild_user_ids, user_id)
+            leaderboard_spot = await conn.fetchval(self.queries["get_leaderboard_position"], guild_user_ids, user_id)
 
             if leaderboard_spot == None:
                 return 0
@@ -18,7 +21,7 @@ class LeaderboardManager:
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         async with self.pool.acquire() as conn:
-            ls_leaderboard_spot = await conn.fetchval(open("database/sql/get_ls_leaderboard_position.sql").read(), snapshot_id, guild_user_ids, user_id)
+            ls_leaderboard_spot = await conn.fetchval(self.queries["get_ls_leaderboard_position"], snapshot_id, guild_user_ids, user_id)
             
             if ls_leaderboard_spot == None:
                 return 0
@@ -28,17 +31,17 @@ class LeaderboardManager:
     async def get_entries_total_playtimes(self, guild):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
-            return await conn.fetchval(open("database/sql/get_entries_total_playtimes.sql").read(), guild_user_ids)
+            return await conn.fetchval(self.queries["get_entries_total_playtimes"], guild_user_ids)
 
     async def get_total_playtimes_total(self, guild):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
-            return await conn.fetchval(open("database/sql/get_total_playtimes_total.sql").read(), guild_user_ids)
+            return await conn.fetchval(self.queries["get_total_total_playtimes"], guild_user_ids)
 
     async def get_total_playtimes(self, guild, start):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(open("database/sql/get_total_playtimes.sql").read(), guild_user_ids, start)
+            rows = await conn.fetch(self.queries["get_total_playtimes"], guild_user_ids, start)
 
             items = []
             for row in rows:
@@ -51,19 +54,19 @@ class LeaderboardManager:
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
-            return await conn.fetchval(open("database/sql/get_entries_ls_total_playtimes.sql").read(), snapshot_id, guild_user_ids)
+            return await conn.fetchval(self.queries["get_entries_ls_total_playtimes"], snapshot_id, guild_user_ids)
 
     async def get_ls_total_playtimes_total(self, guild):
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
-            return await conn.fetchval(open("database/sql/get_ls_total_playtimes_total.sql").read(), snapshot_id, guild_user_ids)
+            return await conn.fetchval(self.queries["get_total_ls_total_playtimes"], snapshot_id, guild_user_ids)
 
     async def get_ls_total_playtimes(self, guild, start):
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(open("database/sql/get_ls_total_playtimes.sql").read(), snapshot_id, guild_user_ids, start)
+            rows = await conn.fetch(self.queries["get_ls_total_playtimes"], snapshot_id, guild_user_ids, start)
 
             items = []
             for row in rows:
@@ -77,17 +80,17 @@ class LeaderboardManager:
     async def get_entries_agg_game_playtimes(self, guild):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
-            return await conn.fetchval(open("database/sql/get_entries_agg_game_playtimes.sql").read(), guild_user_ids)
+            return await conn.fetchval(self.queries["get_entries_agg_game_playtimes"], guild_user_ids)
 
     async def get_agg_game_playtimes_total(self, guild):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
-            return await conn.fetchval(open("database/sql/get_agg_game_playtimes_total.sql").read(), guild_user_ids)
+            return await conn.fetchval(self.queries["get_total_agg_game_playtimes"], guild_user_ids)
 
     async def get_agg_game_playtimes(self, guild, start):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(open("database/sql/get_agg_game_playtimes.sql").read(), guild_user_ids, start)
+            rows = await conn.fetch(self.queries["get_agg_game_playtimes"], guild_user_ids, start)
 
             items = []
             for row in rows:
@@ -101,17 +104,17 @@ class LeaderboardManager:
     async def get_entries_agg_ls_game_playtimes(self, guild):
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         async with self.pool.acquire() as conn:
-            return await conn.fetchval(open("database/sql/get_entries_agg_ls_game_playtimes.sql").read(), snapshot_id)
+            return await conn.fetchval(self.queries["get_entries_agg_ls_game_playtimes"], snapshot_id)
 
     async def get_agg_ls_game_playtimes_total(self, guild):
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         async with self.pool.acquire() as conn:
-            return await conn.fetchval(open("database/sql/get_agg_ls_game_playtimes_total.sql").read(), snapshot_id)
+            return await conn.fetchval(self.queries["get_total_agg_ls_game_playtimes"], snapshot_id)
 
     async def get_agg_ls_game_playtimes(self, guild, start):
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(open("database/sql/get_agg_ls_game_playtimes.sql").read(), snapshot_id, start)
+            rows = await conn.fetch(self.queries["get_agg_ls_game_playtimes"], snapshot_id, start)
 
             items = []
             for row in rows:
@@ -129,7 +132,7 @@ class LeaderboardManager:
             return 0
 
         async with self.pool.acquire() as conn:
-            return await conn.fetchval(open("database/sql/get_entries_game_playtimes.sql").read(), user_id)
+            return await conn.fetchval(self.queries["get_entries_game_playtimes"], user_id)
 
     async def get_game_playtimes_total(self, guild, user_id):
         if guild != "NO_GUILD":
@@ -138,7 +141,7 @@ class LeaderboardManager:
                 return 0
 
         async with self.pool.acquire() as conn:
-            return await conn.fetchval(open("database/sql/get_game_playtimes_total.sql").read(), user_id)
+            return await conn.fetchval(self.queries["get_total_game_playtimes"], user_id)
 
     async def get_game_playtimes(self, guild, user_id, start):
         if guild != "NO_GUILD":
@@ -148,7 +151,7 @@ class LeaderboardManager:
                 return items
 
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(open("database/sql/get_game_playtimes.sql").read(), user_id, start)
+            rows = await conn.fetch(self.queries["get_game_playtimes"], user_id, start)
 
             items = []
             for row in rows:
@@ -164,7 +167,7 @@ class LeaderboardManager:
 
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         async with self.pool.acquire() as conn:
-            return await conn.fetchval(open("database/sql/get_entries_ls_game_playtimes.sql").read(), snapshot_id, user_id)
+            return await conn.fetchval(self.queries["get_entries_ls_game_playtimes"], snapshot_id, user_id)
 
     async def get_ls_game_playtimes_total(self, guild, user_id):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
@@ -173,7 +176,7 @@ class LeaderboardManager:
 
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         async with self.pool.acquire() as conn:
-            return await conn.fetchval(open("database/sql/get_ls_game_playtimes_total.sql").read(), snapshot_id, user_id)
+            return await conn.fetchval(self.queries["get_total_ls_game_playtimes"], snapshot_id, user_id)
 
     async def get_ls_game_playtimes(self, guild, user_id, start):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
@@ -183,7 +186,7 @@ class LeaderboardManager:
 
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(open("database/sql/get_ls_game_playtimes.sql").read(), snapshot_id, user_id, start)
+            rows = await conn.fetch(self.queries["get_ls_game_playtimes"], snapshot_id, user_id, start)
 
             items = []
             for row in rows:
@@ -197,17 +200,17 @@ class LeaderboardManager:
     async def get_entries_game_playtimes_breakdown(self, guild, place_id):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
-            return await conn.fetchval(open("database/sql/get_entries_game_playtimes_breakdown.sql").read(), guild_user_ids, place_id)
+            return await conn.fetchval(self.queries["get_entries_game_playtimes_breakdown"], guild_user_ids, place_id)
 
     async def get_game_playtimes_breakdown_total(self, guild, place_id):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
-            return await conn.fetchval(open("database/sql/get_game_playtimes_breakdown_total.sql").read(), guild_user_ids, place_id)
+            return await conn.fetchval(self.queries["get_total_game_playtimes_breakdown"], guild_user_ids, place_id)
 
     async def get_game_playtimes_breakdown(self, guild, place_id, start):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(open("database/sql/get_game_playtimes_breakdown.sql").read(), guild_user_ids, place_id, start)
+            rows = await conn.fetch(self.queries["get_game_playtimes_breakdown"], guild_user_ids, place_id, start)
 
             items = []
             for row in rows:
@@ -222,17 +225,17 @@ class LeaderboardManager:
     async def get_entries_ls_game_playtimes_breakdown(self, guild, place_id):
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         async with self.pool.acquire() as conn:
-            return await conn.fetchval(open("database/sql/get_entries_ls_game_playtimes_breakdown.sql").read(), snapshot_id, place_id)
+            return await conn.fetchval(self.queries["get_entries_ls_game_playtimes_breakdown"], snapshot_id, place_id)
 
     async def get_ls_game_playtimes_breakdown_total(self, guild, place_id):
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         async with self.pool.acquire() as conn:
-            return await conn.fetchval(open("database/sql/get_ls_game_playtimes_breakdown_total.sql").read(), snapshot_id, place_id)
+            return await conn.fetchval(self.queries["get_total_ls_game_playtimes_breakdown"], snapshot_id, place_id)
 
     async def get_ls_game_playtimes_breakdown(self, guild, place_id, start):
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(open("database/sql/get_ls_game_playtimes_breakdown.sql").read(), snapshot_id, place_id, start)
+            rows = await conn.fetch(self.queries["get_ls_game_playtimes_breakdown"], snapshot_id, place_id, start)
 
             items = []
             for row in rows:
