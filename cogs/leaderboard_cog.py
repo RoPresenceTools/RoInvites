@@ -286,6 +286,7 @@ class LeaderboardCog(commands.Cog):
         )
         await interaction.response.send_message(embed=await view.get_embed(), view=view)
         view.message = await interaction.original_response()
+
     @user.command(name="all", description="Shows a user's statistics in a given server for all games")
     @app_commands.autocomplete(user_id=user_autocomplete)
     async def get_user_paginated(
