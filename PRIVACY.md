@@ -1,7 +1,7 @@
 # Roblox Invites Privacy Policy
 **By using or participating in the services offered by the official instance of Roblox Invites, you agree to the terms set forth in this Privacy Policy.** Other instances of this program are not bound to this Privacy Policy.<br>
 When a newer version of the Privacy Policy is released, any older versions of the Privacy Policy are void. The Privacy Policy is subject to change at any time without notice.<br>
-**Last update:** 8/18/2026 12:46PM EDT<br>
+**Last update:** 8/18/2026 12:50PM EDT<br>
 
 ### I. Data Collection
 Roblox Invites stores this data in order to provide its services to you:
@@ -10,6 +10,7 @@ Roblox Invites stores this data in order to provide its services to you:
 - Your Roblox display name
 - The games you play along with their respective playtimes in seconds
 - Your Discord user ID
+
 None of this data is sold nor shared with third parties.<br>
 Only your username and user ID are sent to the official Roblox servers.<br>
 However, other server members may see some of this data through Invite Embeds and Commands.<br>
@@ -26,10 +27,11 @@ These messages include:
 ### III. Commands
 Roblox Invites commands may provide/summarize this data:
 - The total and/or weekly server playtime
-- Playtimes pertaining to all-time and/or weekly playtime leaderboards, along with the respective username
-- Playtimes pertaining to all-time playtime leaderboards for any given game, along with the respective username
-- The top 10 games' playtimes for both this week and/or overall
-All publicly displayed playtimes are displayed in hours, rounded to 2 decimal places.
+- The total and/or weekly playtime for any given game
+- Playtimes pertaining to all-time and/or weekly playtime leaderboards, along with their respective usernames
+- Playtimes pertaining to all-time and/or weekly playtime leaderboards for any given game, along with their respective usernames
+
+All publicly displayed playtimes are displayed in an HOURh MINUTEm SECONDs format.
 
 ### IV. Privacy Controls
 Roblox Invites offers a set of privacy controls which you can use to control how your data is used, shared, and deleted.<br>
