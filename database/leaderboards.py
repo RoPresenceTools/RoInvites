@@ -33,7 +33,7 @@ class LeaderboardManager:
         async with self.pool.acquire() as conn:
             return await conn.fetchval(self.queries["get_entries_total_playtimes"], guild_user_ids)
 
-    async def get_total_playtimes_total(self, guild):
+    async def get_total_total_playtimes(self, guild):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
             return await conn.fetchval(self.queries["get_total_total_playtimes"], guild_user_ids)
@@ -56,7 +56,7 @@ class LeaderboardManager:
         async with self.pool.acquire() as conn:
             return await conn.fetchval(self.queries["get_entries_ls_total_playtimes"], snapshot_id, guild_user_ids)
 
-    async def get_ls_total_playtimes_total(self, guild):
+    async def get_total_ls_total_playtimes(self, guild):
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
@@ -82,7 +82,7 @@ class LeaderboardManager:
         async with self.pool.acquire() as conn:
             return await conn.fetchval(self.queries["get_entries_agg_game_playtimes"], guild_user_ids)
 
-    async def get_agg_game_playtimes_total(self, guild):
+    async def get_total_agg_game_playtimes(self, guild):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
             return await conn.fetchval(self.queries["get_total_agg_game_playtimes"], guild_user_ids)
@@ -106,7 +106,7 @@ class LeaderboardManager:
         async with self.pool.acquire() as conn:
             return await conn.fetchval(self.queries["get_entries_agg_ls_game_playtimes"], snapshot_id)
 
-    async def get_agg_ls_game_playtimes_total(self, guild):
+    async def get_total_agg_ls_game_playtimes(self, guild):
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         async with self.pool.acquire() as conn:
             return await conn.fetchval(self.queries["get_total_agg_ls_game_playtimes"], snapshot_id)
@@ -134,7 +134,7 @@ class LeaderboardManager:
         async with self.pool.acquire() as conn:
             return await conn.fetchval(self.queries["get_entries_game_playtimes"], user_id)
 
-    async def get_game_playtimes_total(self, guild, user_id):
+    async def get_total_game_playtimes(self, guild, user_id):
         if guild != "NO_GUILD":
             guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
             if not user_id in guild_user_ids:
@@ -169,7 +169,7 @@ class LeaderboardManager:
         async with self.pool.acquire() as conn:
             return await conn.fetchval(self.queries["get_entries_ls_game_playtimes"], snapshot_id, user_id)
 
-    async def get_ls_game_playtimes_total(self, guild, user_id):
+    async def get_total_ls_game_playtimes(self, guild, user_id):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         if not user_id in guild_user_ids:
             return 0
@@ -202,7 +202,7 @@ class LeaderboardManager:
         async with self.pool.acquire() as conn:
             return await conn.fetchval(self.queries["get_entries_game_playtimes_breakdown"], guild_user_ids, place_id)
 
-    async def get_game_playtimes_breakdown_total(self, guild, place_id):
+    async def get_total_game_playtimes_breakdown(self, guild, place_id):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
         async with self.pool.acquire() as conn:
             return await conn.fetchval(self.queries["get_total_game_playtimes_breakdown"], guild_user_ids, place_id)
@@ -227,7 +227,7 @@ class LeaderboardManager:
         async with self.pool.acquire() as conn:
             return await conn.fetchval(self.queries["get_entries_ls_game_playtimes_breakdown"], snapshot_id, place_id)
 
-    async def get_ls_game_playtimes_breakdown_total(self, guild, place_id):
+    async def get_total_ls_game_playtimes_breakdown(self, guild, place_id):
         snapshot_id = await self.bot.snapshot_manager.get_latest_snapshot_id(guild)
         async with self.pool.acquire() as conn:
             return await conn.fetchval(self.queries["get_total_ls_game_playtimes_breakdown"], snapshot_id, place_id)
