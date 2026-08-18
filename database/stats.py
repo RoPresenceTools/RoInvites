@@ -1,12 +1,12 @@
-import database
 from datetime import datetime
+from .load_sql import load_sql
 
 class StatManager:
     def __init__(self, pool, api, user_manager):
         self.pool = pool
         self.api = api
         self.user_manager = user_manager
-        self.queries = database.load_sql("stats.sql")
+        self.queries = load_sql("stats.sql")
         
     async def check_currently_playing(self, user_id):
         async with self.pool.acquire() as conn:

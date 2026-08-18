@@ -1,10 +1,10 @@
-import database
+from .load_sql import load_sql
 
 class CGTManager:
     def __init__(self, pool, api):
         self.pool = pool
         self.api = api
-        self.queries = database.load_sql("custom.sql")
+        self.queries = load_sql("custom.sql")
 
     async def get_custom_title(self, guild, universe_id):
         if await self.check_custom_title(guild, universe_id):

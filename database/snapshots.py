@@ -1,11 +1,11 @@
-import database
+from .load_sql import load_sql
 
 class SnapshotManager:
     def __init__(self, pool, bot, api):
         self.pool = pool
         self.bot = bot
         self.api = api
-        self.queries = database.load_sql("snapshots.sql")
+        self.queries = load_sql("snapshots.sql")
 
     async def get_total_playtimes_unfiltered(self, user_ids):
         async with self.pool.acquire() as conn:

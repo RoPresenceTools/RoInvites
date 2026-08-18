@@ -1,10 +1,10 @@
-import database
+from .load_sql import load_dir
 
 class UserManager:
     def __init__(self, pool, api):
         self.pool = pool
         self.api = api
-        self.queries = database.load_dir("users")
+        self.queries = load_dir("users")
 
     async def get_display_name(self, user_id):
         async with self.pool.acquire() as conn:

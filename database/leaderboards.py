@@ -1,11 +1,11 @@
-import database
+from .load_sql import load_dir
 
 class LeaderboardManager:
     def __init__(self, pool, bot, api):
         self.pool = pool
         self.bot = bot
         self.api = api
-        self.queries = database.load_dir("leaderboards")
+        self.queries = load_dir("leaderboards")
 
     async def get_leaderboard_position(self, guild, user_id):
         guild_user_ids = await self.bot.user_manager.get_guild_user_ids(guild)
