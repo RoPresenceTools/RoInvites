@@ -3,10 +3,11 @@ import asyncio
 import notifier
 from bot import *
 from dotenv import load_dotenv
+from pathlib import Path
 
 load_dotenv()
 headers = {
-    "Cookie": f".ROBLOSECURITY={os.environ["cookie"]}"
+    "Cookie": f".ROBLOSECURITY={os.environ.get("cookie", "")}"
 }
 
 version = "2.6.0"
@@ -20,8 +21,8 @@ Updated from __v{0}__ to __v{1}__
 - Other leaderboard fixes
 """
 
-if not os.path.exists("./database/backups/"):
-    os.makedirs("./database/backups/")
+backup_folder = Path(__file__).parent / "database" / "backups"
+backup_folder.mkdir(parents=True, exist_ok=True)
 
 api = notifier.API(headers)
 bot = RobloxInvitesBot(api, version, patch_notes)
@@ -32,7 +33,7 @@ presence_tracker = notifier.PresenceTracker(bot)
 async def main():
     try:
         await asyncio.gather(
-            bot.start(os.environ["token"]),
+            bot.start(os.environ.get("token", "")),
             presence_tracker.track()
         )
     except KeyboardInterrupt:
