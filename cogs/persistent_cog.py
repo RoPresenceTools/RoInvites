@@ -3,13 +3,13 @@ from discord import app_commands
 from discord.ext import commands
 from styling.ri_colors import *
 
-class LegacyLeaderboardCog(commands.Cog):
+class PersistentLeaderboardCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    legacy_leaderboard = app_commands.Group(
-        name="legacylb",
-        description="Legacy leaderboard commands",
+    persistent_leaderboard = app_commands.Group(
+        name="persistent",
+        description="Persistent leaderboard commands",
         allowed_installs=app_commands.AppInstallationType(
             guild=True,
             user=False
@@ -20,7 +20,7 @@ class LegacyLeaderboardCog(commands.Cog):
             private_channel=False
         )
     )
-    game = app_commands.Group(name="game", description="Game-related legacy leaderboard commands", parent=legacy_leaderboard)
+    game = app_commands.Group(name="game", description="Game-related persistent leaderboard commands", parent=persistent_leaderboard)
 
     async def all_games_autocomplete(
         self,
@@ -34,12 +34,12 @@ class LegacyLeaderboardCog(commands.Cog):
             for game in game_list
         ]
 
-    @legacy_leaderboard.command(name="all", description="Sends this server's all-time playtime leaderboard")
+    @persistent_leaderboard.command(name="all", description="Sends this server's all-time playtime leaderboard")
     async def all_time_user_leaderboard(
         self, 
         interaction: discord.Interaction
     ):
-        (message_title, message_content) = await interaction.client.leaderboard_manager.legacy_get_alltime_user_leaderboard(interaction.guild)
+        (message_title, message_content) = await interaction.client.leaderboard_manager.persistent_get_alltime_user_leaderboard(interaction.guild)
         embed = discord.Embed(
             title=message_title,
             description=message_content,
@@ -47,12 +47,12 @@ class LegacyLeaderboardCog(commands.Cog):
         )
         await interaction.response.send_message(embed=embed)
 
-    @legacy_leaderboard.command(name="snapshot", description="Sends this server's playtime leaderboard since last snapshot")
+    @persistent_leaderboard.command(name="snapshot", description="Sends this server's playtime leaderboard since last snapshot")
     async def ls_leaderboard(
         self,
         interaction: discord.Interaction
     ):
-        (message_title, message_content) = await interaction.client.leaderboard_manager.legacy_get_ls_user_leaderboard(interaction.guild)
+        (message_title, message_content) = await interaction.client.leaderboard_manager.persistent_get_ls_user_leaderboard(interaction.guild)
         embed = discord.Embed(
             title=message_title,
             description=message_content,
@@ -67,7 +67,7 @@ class LegacyLeaderboardCog(commands.Cog):
         interaction: discord.Interaction,
         place_id: int
     ):
-        (message_title, message_content) = await interaction.client.leaderboard_manager.legacy_get_alltime_game_leaderboard(interaction.guild, place_id)
+        (message_title, message_content) = await interaction.client.leaderboard_manager.persistent_get_alltime_game_leaderboard(interaction.guild, place_id)
         embed = discord.Embed(
             title=message_title,
             description=message_content,
@@ -83,7 +83,7 @@ class LegacyLeaderboardCog(commands.Cog):
         place_id: int
     ):
         try:
-            (message_title, message_content) = await interaction.client.leaderboard_manager.legacy_get_ls_game_leaderboard(interaction.guild, place_id)
+            (message_title, message_content) = await interaction.client.leaderboard_manager.persistent_get_ls_game_leaderboard(interaction.guild, place_id)
             embed = discord.Embed(
                 title=message_title,
                 description=message_content,
@@ -95,4 +95,4 @@ class LegacyLeaderboardCog(commands.Cog):
             traceback.print_exc()
         
 async def setup(bot: commands.Bot):
-    await bot.add_cog(LegacyLeaderboardCog(bot))
+    await bot.add_cog(PersistentLeaderboardCog(bot))
