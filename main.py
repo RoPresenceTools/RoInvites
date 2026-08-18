@@ -15,6 +15,7 @@ Updated from __v{0}__ to __v{1}__
 
 **Patch Notes:**
 - Leaderboard functions have been moved to their own .sql files
+- Leaderboards will still show after they time out
 - Since-last-snapshot leaderboards have been fixed
 - Other leaderboard fixes
 """
