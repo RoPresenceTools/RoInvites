@@ -27,7 +27,7 @@ class PaginatedLeaderboard(discord.ui.View):
 
     async def on_timeout(self):
         embed = await self.get_embed()
-        embed.set_footer(text=f"{embed.footer.text} - This leaderboard has timed out.")
+        embed.set_footer(text=f"{embed.footer.text} • This leaderboard has timed out.")
 
         await self.message.edit(
             embed=embed,
