@@ -55,8 +55,6 @@ class PresenceTracker:
                 times_checked += 1
             except aiohttp.client_exceptions.ClientOSError:
                 pass
-            except asyncio.exceptions.CancelledError:
-                pass
             except aiohttp.ClientResponseError as e:
                 self.clear()
                 print(f"{gold}[Roblox Invites] [{self.version}] [{times_checked}]{end}")
