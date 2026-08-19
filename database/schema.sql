@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     username TEXT NOT NULL,
     display_name TEXT NOT NULL,
     erased INT DEFAULT 0,
+    frozen INT DEFAULT 0,
     joined TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -11,14 +12,18 @@ CREATE TABLE IF NOT EXISTS presences (
     user_id BIGINT PRIMARY KEY,
     place_id BIGINT,
     game_instance_id TEXT,
-    user_status INT DEFAULT 0
+    user_status INT DEFAULT 0,
+    last_location TEXT,
+    root_place_id BIGINT DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS old_presences (
     user_id BIGINT PRIMARY KEY,
     place_id BIGINT,
     game_instance_id TEXT,
-    user_status INT DEFAULT 0
+    user_status INT DEFAULT 0,
+    last_location TEXT,
+    root_place_id BIGINT DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS transfers (
@@ -51,6 +56,7 @@ CREATE TABLE IF NOT EXISTS guild_settings (
 CREATE TABLE IF NOT EXISTS subscriptions (
     guild_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
+    freeze_invites INT DEFAULT 0,
     subscribed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (guild_id, user_id)
 );
@@ -116,4 +122,9 @@ CREATE TABLE IF NOT EXISTS game_playtime_snapshots (
     FOREIGN KEY (snapshot_id)
         REFERENCES snapshot_metadata(snapshot_id)
         ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS metadata (
+    id INT PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+    current_version TEXT DEFAULT '0.0.0'
 );

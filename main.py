@@ -19,6 +19,10 @@ Updated from __v{0}__ to __v{1}__
 - Leaderboards will still show after they time out
 - Since-last-snapshot leaderboards have been fixed
 - Other leaderboard fixes
+
+**Notice:** The schema file has been updated with previous migrations.
+Additionally, migration SQL files have been combined.
+This should not affect migrations from older versions.
 """
 
 backup_folder = Path(__file__).parent / "database" / "backups"

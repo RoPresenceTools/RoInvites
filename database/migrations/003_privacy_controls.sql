@@ -1,5 +1,0 @@
-ALTER TABLE users
-ADD IF NOT EXISTS frozen INT DEFAULT 0;
-
-ALTER TABLE subscriptions
-ADD IF NOT EXISTS freeze_invites INT DEFAULT 0;
