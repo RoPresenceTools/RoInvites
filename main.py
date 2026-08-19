@@ -15,6 +15,7 @@ patch_notes = """
 Updated from __v{0}__ to __v{1}__
 
 **Patch Notes:**
+- If the bot joins a new guild, a row for guild settings will now be properly initalized
 - Leaderboard functions have been moved to their own .sql files
 - Leaderboards will still show after they time out
 - Rebranded the bot to RoInvites to prevent copyright issues
