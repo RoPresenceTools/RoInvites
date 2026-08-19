@@ -15,7 +15,7 @@ class BlacklistManager:
         if not await self.check_blacklist(guild, place_id):
             async with self.pool.acquire() as conn:
                 await conn.execute(self.queries["add_blacklist"], guild.id, place_id, game_name)
-            return True
+                return True
         else:
             return False
 
@@ -23,7 +23,7 @@ class BlacklistManager:
         if await self.check_blacklist(guild, place_id):
             async with self.pool.acquire() as conn:
                 await conn.execute(self.queries["remove_blacklist"], guild.id, place_id)
-            return True
+                return True
         else:
             return False
 
