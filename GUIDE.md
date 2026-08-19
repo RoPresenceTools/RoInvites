@@ -5,6 +5,7 @@ Below you can find a guide on how to use this bot.<br>
 ### Adding yourself to the bot
 Adding yourself to Roblox Invites is super easy!<br>
 To add yourself to the bot, run `/user add YOUR_USERNAME`. You will need to verify your Roblox account.<br>
+**Make sure to friend [@RobloxInvitesHolder](https://www.roblox.com/users/11263892678/profile) so you can be tracked properly.**<br>
 
 Run `/server link` on any servers you want to link your Discord account with.<br>
 You'll need to do this to participate in server leaderboards and for invite/leave messages to show in servers.<br>
