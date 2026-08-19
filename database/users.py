@@ -93,7 +93,7 @@ class UserManager:
             if not user_exists_in_ri:
                 user_data = await self.api.get_misc(f"https://users.roblox.com/v1/users/{user_id}")
                 if user_data["description"].lower().strip() != "i confirm that i am joining the invites program.":
-                    return f"**You must verify that the following account (@{username}) is yours.**\nPlease set `I confirm that I am joining the Invites program.` as your Roblox account description and try again.\nYou can edit your description [here](<https://www.roblox.com/users/profile/edit>)."
+                    return f"**You must verify that the following account (@{username}) is yours.**\nPlease set `I confirm that I am joining the Invites program.` as your Roblox account description and try again.\nYou can edit your description [here](<https://www.roblox.com/users/profile/edit>).\n\nBy signing up for Roblox Invites, you agree to the [Privacy Policy](<https://github.com/RoPresenceTools/RobloxInvites/blob/main/PRIVACY.md>).\nYour data is not shared with third parties."
 
             await conn.execute(self.queries["add_user"], user_id, discord_user.id, username, display_name)
         return True
