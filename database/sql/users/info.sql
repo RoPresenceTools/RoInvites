@@ -81,3 +81,7 @@ SELECT EXISTS (
 SELECT user_id
 FROM users
 WHERE erased = 1;
+
+-- query: get_user_count
+SELECT COUNT(*)
+FROM users;

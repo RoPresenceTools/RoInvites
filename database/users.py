@@ -70,6 +70,10 @@ class UserManager:
         display_name = req["data"][0]["displayName"]
 
         async with self.pool.acquire() as conn:
+            user_count = await conn.fetchval(self.queries["get_user_count"])
+            if user_count >= 50:
+                return "Sorry, the bot has reached max capacity.\nMore spots will open soon!"
+
             user_exists_in_ri = await conn.fetchval(self.queries["user_exists_in_ri"], user_id)
             prev_discord = await conn.fetchrow(self.queries["prev_discord"], discord_user.id)
             prev_roblox = await conn.fetchrow(self.queries["prev_roblox"], user_id)
