@@ -18,12 +18,11 @@ Updated from __v{0}__ to __v{1}__
 - Leaderboard functions have been moved to their own .sql files
 - Leaderboards will still show after they time out
 - Since-last-snapshot leaderboards have been fixed
-- There is now a temporary cap of 50 users. This will be increased in a future update.
 - Other leaderboard fixes
 
-**Notice:** The schema file has been updated with previous migrations.
-Additionally, migration SQL files have been combined.
-This should not affect migrations from older versions.
+**Notice:** There is now a temporary cap of 50 users. This will be increased in a future update.
+The cap is not new, as Roblox API requests to presences.roblox.com can process a maximum of 50 user IDs at once.
+This change just makes it so the bot doesn't malfunction when there are >50 users.
 """
 
 backup_folder = Path(__file__).parent / "database" / "backups"
