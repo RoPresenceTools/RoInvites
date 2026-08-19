@@ -100,7 +100,7 @@ class UserManager:
 
     async def remove_user(self, discord_user):
         async with self.pool.acquire() as conn:
-            user_id = await conn.fetchval(self.queries["get_user_from_discord_id"], discord_user.id)
+            user_id = await self.get_user_from_discord_id(discord_user)
             if user_id is None:
                 return False
 
@@ -128,7 +128,7 @@ class UserManager:
 
     async def unlink_user(self, discord_user, guild):
         async with self.pool.acquire() as conn:
-            user_id = await conn.fetchval(self.queries["get_user_from_discord_id"], discord_user.id)
+            user_id = await self.get_user_from_discord_id(discord_user)
             if user_id is None:
                 return False
 
@@ -171,7 +171,7 @@ class UserManager:
 
     async def update_user_info(self, discord_user):
         async with self.pool.acquire() as conn:
-            user_id = await conn.fetchval(self.queries["get_user_from_discord_id"], discord_user.id)
+            user_id = await self.get_user_from_discord_id(discord_user)
             if user_id is None:
                 return f"You don't have a Roblox account associated with Roblox Invites.\nAdd one with `/user add`!"
 
