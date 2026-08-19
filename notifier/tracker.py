@@ -13,7 +13,7 @@ class PresenceTracker:
 
     async def track(self):
         self.clear()
-        print(f"{gold}[Roblox Invites] [{self.version}] [0]{end}")
+        print(f"{gold}[RoInvites] [{self.version}] [0]{end}")
         print("Waiting for the bot to get ready...")
         await self.bot.wait_until_ready()
 
@@ -40,7 +40,7 @@ class PresenceTracker:
         while True:
             try:
                 self.clear()
-                print(f"{gold}[Roblox Invites] [{self.version}] [{times_checked}]{end}")
+                print(f"{gold}[RoInvites] [{self.version}] [{times_checked}]{end}")
                 user_ids = await self.bot.user_manager.get_all_user_ids()
                 if len(user_ids) == 0:
                     print("No users are currently being tracked.")
@@ -57,18 +57,18 @@ class PresenceTracker:
                 pass
             except aiohttp.ClientResponseError as e:
                 self.clear()
-                print(f"{gold}[Roblox Invites] [{self.version}] [{times_checked}]{end}")
+                print(f"{gold}[RoInvites] [{self.version}] [{times_checked}]{end}")
                 print(f"There's been a client response error! Status code: {e.status}")
                 await asyncio.sleep(10)
             except aiohttp.client_exceptions.ClientConnectorCertificateError:
                 self.clear()
-                print(f"{gold}[Roblox Invites] [{self.version}] [{times_checked}]{end}")
+                print(f"{gold}[RoInvites] [{self.version}] [{times_checked}]{end}")
                 print(f"Couldn't connect to Roblox's servers.")
                 print("Make sure your certificates are up to date and that Roblox isn't blocked on your network.")
                 await asyncio.sleep(5)
             except aiohttp.client_exceptions.ClientResponseError:
                 self.clear()
-                print(f"{gold}[Roblox Invites] [{self.version}] [{times_checked}]{end}")
+                print(f"{gold}[RoInvites] [{self.version}] [{times_checked}]{end}")
                 print(f"Couldn't connect to Roblox's servers.")
                 print("The tracker will wait 10 seconds before continuing.")
                 await asyncio.sleep(10)

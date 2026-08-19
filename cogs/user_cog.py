@@ -21,7 +21,7 @@ class UserCog(commands.Cog):
         )
     )
 
-    @user.command(name="add", description="Adds a new user to Roblox Invites")
+    @user.command(name="add", description="Adds a new user to RoInvites")
     async def add_user(
         self, 
         interaction: discord.Interaction, 
@@ -30,11 +30,11 @@ class UserCog(commands.Cog):
         await interaction.response.defer(ephemeral=True)
         success = await interaction.client.user_manager.add_user(username, interaction.user)
         if success == True:
-            await interaction.followup.send(f"Successfully added you (@{username}) to Roblox Invites!\nRun `/server link` in any server with me in it to participate in leaderboards and events!")
+            await interaction.followup.send(f"Successfully added you (@{username}) to RoInvites!\nRun `/server link` in any server with me in it to participate in leaderboards and events!")
         else:
             await interaction.followup.send(success)
 
-    @user.command(name="remove", description="Removes you from Roblox Invites")
+    @user.command(name="remove", description="Removes you from RoInvites")
     async def remove_user(
         self, 
         interaction: discord.Interaction, 
@@ -42,9 +42,9 @@ class UserCog(commands.Cog):
         await interaction.response.defer(ephemeral=True)
         success = await interaction.client.user_manager.remove_user(interaction.user)
         if success == True:
-            await interaction.followup.send(f"Removed you from Roblox Invites. Hope you had a great time!")
+            await interaction.followup.send(f"Removed you from RoInvites. Hope you had a great time!")
         else:
-            await interaction.followup.send(f"You don't have a Roblox account associated with Roblox Invites.\nAdd one with `/user add`!")
+            await interaction.followup.send(f"You don't have a Roblox account associated with RoInvites.\nAdd one with `/user add`!")
 
     @user.command(name="update_info", description="Updates your display name/username")
     async def update_info(
@@ -78,7 +78,7 @@ class UserCog(commands.Cog):
 
         await interaction.followup.send(embed=embed)
 
-    @user.command(name="freeze", description="Freezes your Roblox Invites account")
+    @user.command(name="freeze", description="Freezes your RoInvites account")
     async def freeze(
         self, 
         interaction: discord.Interaction, 
@@ -88,9 +88,9 @@ class UserCog(commands.Cog):
         if success == True:
             await interaction.followup.send(f"Successfully froze your account!")
         else:
-            await interaction.followup.send(f"You don't have a Roblox account associated with Roblox Invites.\nAdd one with `/user add`!")
+            await interaction.followup.send(f"You don't have a Roblox account associated with RoInvites.\nAdd one with `/user add`!")
 
-    @user.command(name="unfreeze", description="Unfreezes your Roblox Invites account")
+    @user.command(name="unfreeze", description="Unfreezes your RoInvites account")
     async def unfreeze(
         self, 
         interaction: discord.Interaction, 
@@ -100,7 +100,7 @@ class UserCog(commands.Cog):
         if success == True:
             await interaction.followup.send(f"Successfully unfroze your account!")
         else:
-            await interaction.followup.send(f"You don't have a Roblox account associated with Roblox Invites.\nAdd one with `/user add`!")
+            await interaction.followup.send(f"You don't have a Roblox account associated with RoInvites.\nAdd one with `/user add`!")
 
     @app_commands.command(name="send_invite", description="Sends out your own personal invite card!")
     @app_commands.allowed_installs(guilds=True, users=True)

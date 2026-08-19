@@ -8,7 +8,7 @@ class SettingsCog(commands.Cog):
 
     channel = app_commands.Group(
         name="settings",
-        description="Server settings for Roblox Invites",
+        description="Server settings for RoInvites",
         allowed_installs=app_commands.AppInstallationType(
             guild=True,
             user=False

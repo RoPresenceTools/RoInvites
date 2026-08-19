@@ -48,7 +48,7 @@ class AdminCog(commands.Cog):
         if success != True:
             await interaction.followup.send(f"Couldn't reload extensions.")
 
-    @admin.command(name="remove", description="Removes a user from Roblox Invites")
+    @admin.command(name="remove", description="Removes a user from RoInvites")
     @app_commands.autocomplete(user_id=user_autocomplete)
     async def admin_remove_user(
         self, 
@@ -61,9 +61,9 @@ class AdminCog(commands.Cog):
         await interaction.response.defer(ephemeral=True)
         success = await interaction.client.user_manager.remove_user_id(user_id)
         if success == True:
-            await interaction.followup.send(f"Removed this user from Roblox Invites.")
+            await interaction.followup.send(f"Removed this user from RoInvites.")
         else:
-            await interaction.followup.send(f"This user isn't associated with Roblox Invites.")
+            await interaction.followup.send(f"This user isn't associated with RoInvites.")
 
     @admin.command(name="backup", description="Creates a .sql server backup")
     async def create_backup(

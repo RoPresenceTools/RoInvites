@@ -80,7 +80,7 @@ class UserManager:
 
             if not None in (prev_discord, prev_roblox):
                 if prev_discord == prev_roblox:
-                    return "You've already linked this account with Roblox Invites."
+                    return "You've already linked this account with RoInvites."
                 elif discord_user.id != prev_roblox["discord_id"]:
                     return "This account has already been linked by someone else."
                 elif prev_discord["user_id"] != user_id:
@@ -97,7 +97,7 @@ class UserManager:
             if not user_exists_in_ri:
                 user_data = await self.api.get_misc(f"https://users.roblox.com/v1/users/{user_id}")
                 if user_data["description"].lower().strip() != "i confirm that i am joining the invites program.":
-                    return f"**You must verify that the following account (@{username}) is yours.**\nPlease set `I confirm that I am joining the Invites program.` as your Roblox account description and try again.\nYou can edit your description [here](<https://www.roblox.com/users/profile/edit>).\n\nMake sure to friend [@RobloxInvitesHolder](<https://www.roblox.com/users/11263892678/profile>) on Roblox to ensure that you're being tracked correctly.\n\nBy signing up for Roblox Invites, you agree to the [Privacy Policy](<https://github.com/RoPresenceTools/RobloxInvites/blob/main/PRIVACY.md>).\nYour data is not shared with third parties."
+                    return f"**You must verify that the following account (@{username}) is yours.**\nPlease set `I confirm that I am joining the Invites program.` as your Roblox account description and try again.\nYou can edit your description [here](<https://www.roblox.com/users/profile/edit>).\n\nMake sure to friend [@RobloxInvitesHolder](<https://www.roblox.com/users/11263892678/profile>) on Roblox to ensure that you're being tracked correctly.\n\nBy signing up for RoInvites, you agree to the [Privacy Policy](<https://github.com/RoPresenceTools/RobloxInvites/blob/main/PRIVACY.md>).\nYour data is not shared with third parties."
 
             await conn.execute(self.queries["add_user"], user_id, discord_user.id, username, display_name)
         return True
@@ -119,7 +119,7 @@ class UserManager:
     async def link_user(self, discord_user, guild):
         user_id = await self.get_user_from_discord_id(discord_user)
         if user_id is None:
-            return "You don't have a Roblox account associated with Roblox Invites.\nAdd one with `/user add`!"
+            return "You don't have a Roblox account associated with RoInvites.\nAdd one with `/user add`!"
 
         async with self.pool.acquire() as conn:
             user_exists_in_guild = await conn.fetchval(self.queries["user_exists_in_guild"], guild.id, user_id)
@@ -142,7 +142,7 @@ class UserManager:
     async def modify_server_invites(self, discord_user, guild, value):
         user_id = await self.get_user_from_discord_id(discord_user)
         if user_id is None:
-            return "You don't have a Roblox account associated with Roblox Invites.\nAdd one with `/user add`!"
+            return "You don't have a Roblox account associated with RoInvites.\nAdd one with `/user add`!"
 
         async with self.pool.acquire() as conn:
             user_exists_in_guild = await conn.fetchval(self.queries["user_exists_in_guild"], guild.id, user_id)
@@ -156,7 +156,7 @@ class UserManager:
     async def modify_freeze_user(self, discord_user, value):
         user_id = await self.get_user_from_discord_id(discord_user)
         if user_id is None:
-            return "You don't have a Roblox account associated with Roblox Invites.\nAdd one with `/user add`!"
+            return "You don't have a Roblox account associated with RoInvites.\nAdd one with `/user add`!"
 
         async with self.pool.acquire() as conn:
             await conn.execute(self.queries["modify_freeze_user"], user_id, value)
@@ -177,7 +177,7 @@ class UserManager:
         async with self.pool.acquire() as conn:
             user_id = await self.get_user_from_discord_id(discord_user)
             if user_id is None:
-                return f"You don't have a Roblox account associated with Roblox Invites.\nAdd one with `/user add`!"
+                return f"You don't have a Roblox account associated with RoInvites.\nAdd one with `/user add`!"
 
         req = await self.api.post_misc("https://users.roblox.com/v1/users", json={"userIds": [user_id]})
         if "data" not in req:

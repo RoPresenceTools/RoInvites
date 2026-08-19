@@ -1,9 +1,9 @@
-## Welcome to Roblox Invites!
-Roblox Invites tracks your playtime on Roblox, sends out invites, and lets you create leaderboards based on your playtime data.<br>
+## Welcome to RoInvites!
+RoInvites tracks your playtime on Roblox, sends out invites, and lets you create leaderboards based on your playtime data.<br>
 Below you can find a guide on how to use this bot.<br>
 
 ### Adding yourself to the bot
-Adding yourself to Roblox Invites is super easy!<br>
+Adding yourself to RoInvites is super easy!<br>
 To add yourself to the bot, run `/user add YOUR_USERNAME`. You will need to verify your Roblox account.<br>
 **Make sure to friend [@RobloxInvitesHolder](https://www.roblox.com/users/11263892678/profile) so you can be tracked properly.**<br>
 
@@ -11,7 +11,7 @@ Run `/server link` on any servers you want to link your Discord account with.<br
 You'll need to do this to participate in server leaderboards and for invite/leave messages to show in servers.<br>
 
 ### Removing yourself from the bot
-Removing yourself from Roblox Invites is equally easy.<br>
+Removing yourself from RoInvites is equally easy.<br>
 To remove yourself from the bot, run `/user remove`. All of your data (besides server snapshots) will be deleted.<br>
 If you only want to stop being tracked in a specific server, you can run `/server unlink` in that server.
 
@@ -39,8 +39,8 @@ You can hide these games from being shown (however, server members will still ac
 Server admins can blacklist a game using `/blacklist add PLACE_ID GAME_NAME`.<br>
 Server admins can un-blacklist a game using `/blacklist remove PLACE_ID`.
 
-### Roblox Invites, the app
-To use commands anywhere on Discord, click Roblox Invites' bio and click *Add App*. Add the bot to *My Apps*.<br>
+### RoInvites, the app
+To use commands anywhere on Discord, click RoInvites' bio and click *Add App*. Add the bot to *My Apps*.<br>
 The below commands can be used anywhere on Discord.
 
 To send invite messages to anyone, you can run `/send_invite`.<br>

@@ -1,10 +1,10 @@
-# Roblox Invites
+# RoInvites
 
 ![GitHub Release](https://img.shields.io/github/v/release/RoPresenceTools/RobloxInvites)
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/w/RoPresenceTools/RobloxInvites)
 ![GitHub License](https://img.shields.io/github/license/RoPresenceTools/RobloxInvites)
 
-Roblox Invites is a bot that connects your Discord server members to their activity on Roblox.<br>
+RoInvites is a bot that connects your Discord server members to their activity on Roblox.<br>
 
 ## Features
 - Sends invites to a dedicated invite channel when a player joins a Roblox game
@@ -14,7 +14,7 @@ Roblox Invites is a bot that connects your Discord server members to their activ
 - Add some personal touches to each game with Custom Titles
 
 ## Images
-**See Roblox Invites in action!**<br>
+**See RoInvites in action!**<br>
 
 Joining a game (no Custom Title):<br>
 <img width="368" height="158" alt="image" src="https://github.com/user-attachments/assets/f558e698-382b-4892-a8a9-266289e84a8b" />
@@ -35,7 +35,7 @@ Leaving a game:<br>
 4. Run main.py using Python 3.14+ (older versions can be used) with the modules in requirements.txt. For accurate playtime tracking, keep the bot running for as long as possible!
 
 ## Commands
-Roblox Invites offers a variety of commands!<br>
+RoInvites offers a variety of commands!<br>
 You can generate playtime leaderboards (weekly/overall), game leaderboards, and user profile cards.<br>
 
 ### Leaderboards

@@ -3,7 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 
 help_message = """
-**Welcome to Roblox Invites!**
+**Welcome to RoInvites!**
 I send invites to other server members when you join a game on Roblox, and track your playtime across Roblox games.
 To add yourself to the bot, run `/user add` followed by your username and verify if needed.
 To add yourself to the current server, run `/server link`.
