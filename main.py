@@ -36,9 +36,9 @@ async def main():
             bot.start(os.environ.get("token", "")),
             presence_tracker.track()
         )
-    except KeyboardInterrupt:
-        pass
     except asyncio.exceptions.CancelledError:
+        pass
+    except KeyboardInterrupt:
         pass
     finally:
         await bot.api.close()
