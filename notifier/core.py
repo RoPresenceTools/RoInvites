@@ -132,7 +132,7 @@ class TrackerCore:
         exclamation = "" if game_ends_in_punctuation(game) else "!"
         period = "" if game_ends_in_punctuation(game) else "."
 
-        join_embed_url = f"https://ropresencetools.github.io/RobloxInvites/invite.html?placeId={place_id}&gameInstanceId={game_instance_id}"
+        join_embed_url = f"https://ropresencetools.github.io/RoInvites/invite.html?placeId={place_id}&gameInstanceId={game_instance_id}"
         embed_title = f"{display_name} has joined a game!"
         embed_desc = f"**Join {display_name} (@{username}) in** *{game}*{exclamation}\nTotal playtime for this game: {playtime_str}"
         embed_color = green
@@ -207,7 +207,7 @@ class TrackerCore:
         game = presence["last_location"]
         embed_title = f"Invite Card"
         embed_desc = f"**{display_name} (@{username}) has invited you** to play *{game}* with them!\n**Join them** with the button below."
-        join_embed_url = f"https://ropresencetools.github.io/RobloxInvites/invite.html?placeId={place_id}&gameInstanceId={game_instance_id}"
+        join_embed_url = f"https://ropresencetools.github.io/RoInvites/invite.html?placeId={place_id}&gameInstanceId={game_instance_id}"
 
         return (embed_title, embed_desc, join_embed_url)
 

@@ -21,7 +21,7 @@ These messages include:
 - Your username and display name
 - The name of the game you are playing
 - The place ID and game instance ID of the game you are playing
-- A link to join your game using https://ropresencetools.github.io/RobloxInvites/invite.html
+- A link to join your game using https://ropresencetools.github.io/RoInvites/invite.html
     - The parameters placeId and gameInstanceId are included to redirect users to your or another user's game server.
 
 ### III. Commands

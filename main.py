@@ -17,7 +17,9 @@ Updated from __v{0}__ to __v{1}__
 **Patch Notes:**
 - Leaderboard functions have been moved to their own .sql files
 - Leaderboards will still show after they time out
+- Rebranded the bot to RoInvites to prevent copyright issues
 - Since-last-snapshot leaderboards have been fixed
+- Updated GitHub Pages links
 - Other leaderboard fixes
 
 **Notice:** There is now a temporary cap of 50 users. This will be increased in a future update.
