@@ -1,32 +1,23 @@
-import os
 import asyncio
 import notifier
 from bot import *
 from dotenv import load_dotenv
 from pathlib import Path
 
+cookie = Path("/run/secrets/roblosecurity").read_text().strip()
+discord_token = Path("/run/secrets/discord_token").read_text().strip()
+
 load_dotenv()
 headers = {
-    "Cookie": f".ROBLOSECURITY={os.environ.get("cookie", "")}"
+    "Cookie": f".ROBLOSECURITY={cookie}"
 }
 
-version = "2.6.0"
+version = "3.0.0"
 patch_notes = """
 Updated from __v{0}__ to __v{1}__
 
 **Patch Notes:**
-- Fixed an issue where running `/leaderboard breakdown_game snapshot` with no snapshot games would cause an error
-- If the bot joins a new guild, a row for guild settings will now be properly initalized
-- Leaderboard functions have been moved to their own .sql files
-- Leaderboards will still show after they time out
-- Rebranded the bot to RoInvites to prevent copyright issues
-- Since-last-snapshot leaderboards have been fixed
-- Updated GitHub Pages links
-- Other leaderboard fixes
-
-**Notice:** There is now a temporary cap of 50 users. This will be increased in a future update.
-The cap is not new, as Roblox API requests to presences.roblox.com can process a maximum of 50 user IDs at once.
-This change just makes it so the bot doesn't malfunction when there are >50 users.
+- Add Docker container support
 """
 
 backup_folder = Path(__file__).parent / "database" / "backups"
@@ -41,7 +32,7 @@ presence_tracker = notifier.PresenceTracker(bot)
 async def main():
     try:
         await asyncio.gather(
-            bot.start(os.environ.get("token", "")),
+            bot.start(discord_token),
             presence_tracker.track()
         )
     except asyncio.exceptions.CancelledError:
