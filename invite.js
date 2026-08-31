@@ -8,7 +8,7 @@ function hasNoSpaces(str) {
 }
 
 function isPosNumber(str) {
-    if (str.trim() === "") return false;
+    if (!hasNoSpaces(str)) return false;
     return (!isNaN(Number(str)) && Number(str) > 0);
 }
 
