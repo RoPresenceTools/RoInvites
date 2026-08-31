@@ -15,9 +15,13 @@ function isPosNumber(str) {
 function setParagraphElementValues() {
     if (placeId == undefined && gameInstanceId == undefined) {
         return;
+    } else if (placeId == undefined || !isPosNumber(placeId)) {
+        document.getElementById("placeId").textContent = "Place ID: Invalid";
     } else if (isPosNumber(placeId) && gameInstanceId == undefined) {
         document.getElementById("placeId").textContent = "Place ID: " + placeId;
-    } else if (hasNoSpaces(gameInstanceId)) {
+    } else if (!hasNoSpaces(gameInstanceId)) {
+        document.getElementById("gameInstanceId").textContent = "Game Instance ID: Invalid";
+    } else {
         document.getElementById("placeId").textContent = "Place ID: " + placeId;
         document.getElementById("gameInstanceId").textContent = "Game Instance ID: " + gameInstanceId;
     }
@@ -25,14 +29,10 @@ function setParagraphElementValues() {
 
 function join() {
     if (placeId == undefined && gameInstanceId == undefined) {
-        alert("A valid placeId and gameInstanceId must be given as URL parameters.");
-    } else if (placeId == undefined || !isPosNumber(placeId)) {
-        alert("A valid placeId must be given as a URL parameter.");
-    } else if (gameInstanceId == undefined) {
+        return;
+    } else if (gameInstanceId == undefined && isPosNumber(placeId)) {
         location.href = "roblox://experiences/start?placeId=" + placeId;
-    } else if (!hasNoSpaces(gameInstanceId)) {
-        alert("A valid gameInstanceId must optionally be given as a URL parameter.");
-    } else {
+    } else if (hasNoSpaces(gameInstanceId)) {
         location.href = "roblox://experiences/start?placeId=" + placeId + "&gameInstanceId=" + gameInstanceId;
     }
 }
