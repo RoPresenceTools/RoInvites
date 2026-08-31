@@ -13,9 +13,7 @@ function isPosNumber(str) {
 }
 
 function setParagraphElementValues() {
-    if (placeId == undefined && gameInstanceId == undefined) {
-        return;
-    } else if (placeId == undefined || !isPosNumber(placeId)) {
+    if (!hasNoSpaces(placeId) || !isPosNumber(placeId)) {
         document.getElementById("placeId").textContent = "Place ID: Invalid";
     } else if (isPosNumber(placeId) && gameInstanceId == undefined) {
         document.getElementById("placeId").textContent = "Place ID: " + placeId;
