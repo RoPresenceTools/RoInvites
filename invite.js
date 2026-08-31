@@ -18,14 +18,14 @@ function join() {
     } else if (placeId == undefined || !isPosNumber(placeId)) {
         alert("A valid placeId must be given as a URL parameter.");
     } else if (gameInstanceId == undefined) {
-        location.href = "roblox://experiences/start?placeId=" + placeId;
         document.getElementById("placeId").textContent = "Place ID: " + placeId;
+        location.href = "roblox://experiences/start?placeId=" + placeId;
     } else if (!hasNoSpaces(gameInstanceId)) {
         alert("A valid gameInstanceId must optionally be given as a URL parameter.");
     } else {
-        location.href = "roblox://experiences/start?placeId=" + placeId + "&gameInstanceId=" + gameInstanceId;
         document.getElementById("placeId").textContent = "Place ID: " + placeId;
         document.getElementById("gameInstanceId").textContent = "Game Instance ID: " + gameInstanceId;
+        location.href = "roblox://experiences/start?placeId=" + placeId + "&gameInstanceId=" + gameInstanceId;
     }
 }
 window.onload = function(){
