@@ -15,8 +15,8 @@ function isPosNumber(str) {
 function setParagraphElementValues() {
     if (!hasNoSpaces(placeId) || !isPosNumber(placeId)) {
         document.getElementById("placeId").textContent = "Place ID: Invalid";
-        document.getElementById("gameInstanceId").textContent = "Game Instance ID: Not Considered (PID must be valid)";
-    } else { // if (isPosNumber(placeId) && gameInstanceId == undefined) {
+        document.getElementById("gameInstanceId").textContent = "Game Instance ID: Place ID must be valid";
+    } else {
         document.getElementById("placeId").textContent = "Place ID: " + placeId;
         if (gameInstanceId.trim() === "") {
             document.getElementById("gameInstanceId").textContent = "Game Instance ID: Not Provided";
