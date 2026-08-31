@@ -2,15 +2,15 @@ let params = new URLSearchParams(document.location.search);
 let placeId = params.get("placeId");
 let gameInstanceId = params.get("gameInstanceId");
 
-function isNumber(str) {
+function isPosNumber(str) {
     if (typeof str !== 'string' || str.trim() === '') return false;
-    return !isNaN(Number(str));
+    return (!isNaN(Number(str)) && Number(str) > 0);
 }
 
 function join() {
     if (placeId == undefined && gameInstanceId == undefined) {
         alert("A valid placeId and gameInstanceId must be given as URL parameters.");
-    } else if (placeId == undefined || !isNumber(placeId)) {
+    } else if (placeId == undefined || !isPosNumber(placeId)) {
         alert("A valid placeId must be given as a URL parameter.");
     } else if (gameInstanceId == undefined) {
         location.href = "roblox://experiences/start?placeId=" + placeId;
