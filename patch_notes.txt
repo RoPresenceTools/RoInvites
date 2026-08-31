@@ -1,0 +1,5 @@
+Updated from __v{0}__ to __v{1}__
+
+**Patch Notes:**
+- Switch to pathlib for path handling
+- Patch notes are now read from /patch_notes.txt

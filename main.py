@@ -13,12 +13,7 @@ headers = {
 }
 
 version = "2.7.0"
-patch_notes = """
-Updated from __v{0}__ to __v{1}__
-
-**Patch Notes:**
-- Switch to pathlib for path handling
-"""
+patch_notes = (Path(__file__).parent / "patch_notes.txt").read_text()
 
 backup_folder = Path(__file__).parent / "database" / "backups"
 backup_folder.mkdir(parents=True, exist_ok=True)
