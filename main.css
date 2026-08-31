@@ -208,6 +208,6 @@ pre {
     border: 1px solid grey;
 }
 
-#placeId, #gameInstanceId {
+.nomargin, #placeId, #gameInstanceId {
     margin: 0
 }
