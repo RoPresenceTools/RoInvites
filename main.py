@@ -1,23 +1,23 @@
+import os
 import asyncio
 import notifier
 from bot import *
 from dotenv import load_dotenv
 from pathlib import Path
 
-cookie = Path("/run/secrets/roblosecurity").read_text().strip()
-discord_token = Path("/run/secrets/discord_token").read_text().strip()
-
 load_dotenv()
+cookie = os.environ.get("roblosecurity")
+discord_token = os.environ.get("token")
 headers = {
     "Cookie": f".ROBLOSECURITY={cookie}"
 }
 
-version = "3.0.0"
+version = "2.7.0"
 patch_notes = """
 Updated from __v{0}__ to __v{1}__
 
 **Patch Notes:**
-- Add Docker container support
+- Switch to pathlib for path handling
 """
 
 backup_folder = Path(__file__).parent / "database" / "backups"
