@@ -1,3 +1,3 @@
 # RoInvites Website
-https://ropresencetools.github.io/RobloxInvites/index.html for main page<br>
-https://ropresencetools.github.io/RobloxInvites/invite.html for invite redirecting
+https://ropresencetools.github.io/RoInvites/index.html for main page<br>
+https://ropresencetools.github.io/RoInvites/invite.html for invite redirecting
