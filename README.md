@@ -1,8 +1,8 @@
 # RoInvites
 
-![GitHub Release](https://img.shields.io/github/v/release/RoPresenceTools/RobloxInvites)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/w/RoPresenceTools/RobloxInvites)
-![GitHub License](https://img.shields.io/github/license/RoPresenceTools/RobloxInvites)
+![GitHub Release](https://img.shields.io/github/v/release/RoPresenceTools/RoInvites)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/w/RoPresenceTools/RoInvites)
+![GitHub License](https://img.shields.io/github/license/RoPresenceTools/RoInvites)
 
 RoInvites is a bot that connects your Discord server members to their activity on Roblox.<br>
 
