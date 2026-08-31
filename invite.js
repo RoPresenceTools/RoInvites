@@ -19,8 +19,8 @@ function setParagraphElementValues() {
         document.getElementById("placeId").textContent = "Place ID: Invalid";
     } else if (isPosNumber(placeId) && gameInstanceId == undefined) {
         document.getElementById("placeId").textContent = "Place ID: " + placeId;
-    } else if (gameInstanceId === "") {
-        document.getElementById("gameInstanceId").textContent = "Game Instance ID: Not Provided"
+    } else if (gameInstanceId.trim() === "") {
+        document.getElementById("gameInstanceId").textContent = "Game Instance ID: Not Provided";
     } else if (!hasNoSpaces(gameInstanceId)) {
         document.getElementById("gameInstanceId").textContent = "Game Instance ID: Invalid";
     } else {
@@ -30,7 +30,7 @@ function setParagraphElementValues() {
 }
 
 function join() {
-    if (placeId == undefined && gameInstanceId == undefined) {
+    if ((placeId == undefined && gameInstanceId == undefined) || !hasNoSpaces(placeId)) {
         return;
     } else if (gameInstanceId == undefined && isPosNumber(placeId)) {
         location.href = "roblox://experiences/start?placeId=" + placeId;
