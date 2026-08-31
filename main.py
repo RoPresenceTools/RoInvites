@@ -25,8 +25,7 @@ backup_folder.mkdir(parents=True, exist_ok=True)
 
 api = notifier.API(headers)
 bot = RobloxInvitesBot(api, version, patch_notes)
-tracker_core = notifier.TrackerCore(bot)
-bot.notifier = tracker_core
+bot.notifier = notifier.TrackerCore(bot)
 presence_tracker = notifier.PresenceTracker(bot)
 
 async def main():

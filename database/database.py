@@ -22,7 +22,7 @@ class Database:
         )
     
     async def create_tables(self):
-        schema_path = Path(__file__).parent / "schema.sql"
+        schema_path = Path(__file__).parent / "sql" / "schema.sql"
         async with self.pool.acquire() as conn:
             await conn.execute(schema_path.read_text())
 
