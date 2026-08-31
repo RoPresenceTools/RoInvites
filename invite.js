@@ -3,7 +3,7 @@ let placeId = params.get("placeId");
 let gameInstanceId = params.get("gameInstanceId");
 
 function isNumber(str) {
-    if (typeof str !== string || str.trim() === '') return false;
+    if (typeof str !== 'string' || str.trim() === '') return false;
     return !isNaN(Number(str));
 }
 
