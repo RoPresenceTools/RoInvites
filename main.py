@@ -6,8 +6,8 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 load_dotenv()
-cookie = os.environ.get("roblosecurity")
-discord_token = os.environ.get("token")
+cookie = os.environ.get("cookie", "")
+discord_token = os.environ.get("token", "")
 headers = {
     "Cookie": f".ROBLOSECURITY={cookie}"
 }
