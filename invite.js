@@ -4,7 +4,7 @@ let gameInstanceId = params.get("gameInstanceId");
 
 function join() {
     if (placeId == undefined && gameInstanceId == undefined) {
-        alert("A valid placeId and/or gameInstanceId must be given as URL parameters.");
+        alert("A valid placeId and gameInstanceId must be given as URL parameters.");
     } else if (placeId == undefined) {
         alert("A valid placeId must be given as a URL parameter.");
     } else if (gameInstanceId == undefined) {
