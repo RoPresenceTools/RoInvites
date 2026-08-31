@@ -1,10 +1,5 @@
-*.app
 *.DS_Store
-*.spec
 .*/
-build_app/
-logs/
-data/
 __pycache__*
 .env
 data/
