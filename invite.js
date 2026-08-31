@@ -14,16 +14,16 @@ function isPosNumber(str) {
 
 function setParagraphElementValues() {
     if (!hasNoSpaces(placeId) || !isPosNumber(placeId)) {
-        document.getElementById("placeId").textContent = "Place ID: Invalid";
-        document.getElementById("gameInstanceId").textContent = "Game Instance ID: Place ID must be valid";
+        document.getElementById("placeId").textContent = "Invalid";
+        document.getElementById("gameInstanceId").textContent = "Place ID must be valid";
     } else {
-        document.getElementById("placeId").textContent = "Place ID: " + placeId;
+        document.getElementById("placeId").textContent = placeId;
         if (gameInstanceId.trim() === "") {
-            document.getElementById("gameInstanceId").textContent = "Game Instance ID: Not Provided";
+            document.getElementById("gameInstanceId").textContent = "Not Provided";
         } else if (!hasNoSpaces(gameInstanceId)) {
-            document.getElementById("gameInstanceId").textContent = "Game Instance ID: Invalid";
+            document.getElementById("gameInstanceId").textContent = "Invalid";
         } else {
-            document.getElementById("gameInstanceId").textContent = "Game Instance ID: " + gameInstanceId;
+            document.getElementById("gameInstanceId").textContent = gameInstanceId;
         }
     }
 }
