@@ -1,11 +1,12 @@
 import asyncpg
+import getpass
 from pathlib import Path
 
 class Database:
     def __init__(self):
         self.pool = None
-        self.pg_user = Path("/run/secrets/pg_user").read_text().strip()
-        self.pg_pwd = Path("/run/secrets/pg_pw").read_text()
+        self.pg_user = getpass.getuser()
+        self.pg_pwd = ""
 
     async def initalize(self):
         await self.connect()
@@ -17,7 +18,7 @@ class Database:
             user=self.pg_user,
             password=self.pg_pwd,
             database="roblox_invites",
-            host="postgres"
+            host="localhost"
         )
     
     async def create_tables(self):
