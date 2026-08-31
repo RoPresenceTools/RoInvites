@@ -15,15 +15,15 @@ function isPosNumber(str) {
 function setParagraphElementValues() {
     if (!hasNoSpaces(placeId) || !isPosNumber(placeId)) {
         document.getElementById("placeId").textContent = "Place ID: Invalid";
-    } else if (isPosNumber(placeId) && gameInstanceId == undefined) {
+    } else { // if (isPosNumber(placeId) && gameInstanceId == undefined) {
         document.getElementById("placeId").textContent = "Place ID: " + placeId;
-    } else if (gameInstanceId.trim() === "") {
-        document.getElementById("gameInstanceId").textContent = "Game Instance ID: Not Provided";
-    } else if (!hasNoSpaces(gameInstanceId)) {
-        document.getElementById("gameInstanceId").textContent = "Game Instance ID: Invalid";
-    } else {
-        document.getElementById("placeId").textContent = "Place ID: " + placeId;
-        document.getElementById("gameInstanceId").textContent = "Game Instance ID: " + gameInstanceId;
+        if (gameInstanceId.trim() === "") {
+            document.getElementById("gameInstanceId").textContent = "Game Instance ID: Not Provided";
+        } else if (!hasNoSpaces(gameInstanceId)) {
+            document.getElementById("gameInstanceId").textContent = "Game Instance ID: Invalid";
+        } else {
+            document.getElementById("gameInstanceId").textContent = "Game Instance ID: " + gameInstanceId;
+        }
     }
 }
 
