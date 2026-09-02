@@ -1,9 +1,12 @@
 import discord
 import getpass
+import logging
 from discord import app_commands
 from discord.ext import commands
 from subprocess import Popen
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 class AdminCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -61,6 +64,7 @@ class AdminCog(commands.Cog):
         await interaction.response.defer(ephemeral=True)
         success = await interaction.client.user_manager.remove_user_id(user_id)
         if success == True:
+            logger.info(f"Removed user with ID {user_id} from RoInvites")
             await interaction.followup.send(f"Removed this user from RoInvites.")
         else:
             await interaction.followup.send(f"This user isn't associated with RoInvites.")
@@ -78,6 +82,7 @@ class AdminCog(commands.Cog):
         backup_proc = Popen(["pg_dump", "-U", getpass.getuser(), "-d", "roblox_invites", "-f", f"./database/backups/{filename}"])
         exit_code = backup_proc.wait()
         if exit_code == 0:
+            logger.info(f"Created a server backup")
             await interaction.followup.send("Successfully created a backup!")
         else:
             await interaction.followup.send(f"Couldn't create a backup. Exit code: {exit_code}")
@@ -106,6 +111,7 @@ class AdminCog(commands.Cog):
                 await channel.send(embed=embed)
             except:
                 pass
+        logger.info(f"Sent global announcement: {announcement_text[:20]}...")
         await interaction.followup.send("Successfully sent announcement!")
 
     @admin.command(name="update_message", description="Shows the current update message")
