@@ -140,17 +140,19 @@ class SetupView(discord.ui.View):
                     embed=await success_view.get_embed(f"Set the {select.values[0]} channel to https://discord.com/channels/{interaction.guild.id}/{channel.id}"),
                     view=success_view
                 )
+            else:
+                failure_view = FailureView()
+                await interaction.edit_original_response(
+                    embed=await failure_view.get_embed(f"Channel ID `{channel.id}` doesn't exist.")
+                    view=failure_view
+                )
 
     async def get_embed(self):
         embed = discord.Embed(
             title="RoInvites Setup",
             description="""
             Set an option to configure!
-            You can configure the bot's channels.
-            
-            **This feature is in BETA and will be refined in further releases.**
-            You can still use the old setup commands for now.
-            As of v2.7.0, you can configure both the invite an announcement channels through this menu.
+            You can configure the bot's channels, with much more being configurable soon.
             """,
             color=discord.Color.dark_gold()
         )
@@ -189,62 +191,6 @@ class SettingsCog(commands.Cog):
         view = SetupView()
         await interaction.response.send_message(embed=await view.get_embed(), view=view, ephemeral=True)
         await view.wait()
-
-    @channel.command(name="invites", description="Sets the channel ID for the invites channel")
-    @app_commands.allowed_contexts(
-        guilds=True,
-        dms=False,
-        private_channels=False,
-    )
-    @app_commands.default_permissions(manage_guild=True)
-    @app_commands.checks.has_permissions(manage_guild=True)
-    async def set_invite_channel(
-        self, 
-        interaction: discord.Interaction, 
-        channel: discord.TextChannel
-    ):
-        permissions = channel.permissions_for(interaction.guild.me)
-        if not (
-            permissions.view_channel and
-            permissions.send_messages and
-            permissions.embed_links
-        ):
-            await interaction.response.send_message(f"I don't have the necessary permissions to operate in https://discord.com/channels/{interaction.guild.id}/{channel.id}.\nEnable the **View Channel**, **Send Messages**, and **Embed Links** permissions for me in that channel.", ephemeral=True)
-            return
-
-        success = await interaction.client.settings_manager.set_channel(interaction.guild, "invite", channel)
-        if success:
-            await interaction.response.send_message(f"Set the invite channel to https://discord.com/channels/{interaction.guild.id}/{channel.id}", ephemeral=True)
-        else:
-            await interaction.response.send_message(f"Channel ID `{channel.id}` doesn't exist.", ephemeral=True)
-
-    @channel.command(name="announcements", description="Sets the channel ID for the announcements channel")
-    @app_commands.allowed_contexts(
-        guilds=True,
-        dms=False,
-        private_channels=False,
-    )
-    @app_commands.default_permissions(manage_guild=True)
-    @app_commands.checks.has_permissions(manage_guild=True)
-    async def set_announcement_channel(
-        self, 
-        interaction: discord.Interaction, 
-        channel: discord.TextChannel
-    ):
-        permissions = channel.permissions_for(interaction.guild.me)
-        if not (
-            permissions.view_channel and
-            permissions.send_messages and
-            permissions.embed_links
-        ):
-            await interaction.response.send_message(f"I don't have the necessary permissions to operate in https://discord.com/channels/{interaction.guild.id}/{channel.id}.\nEnable the **View Channel**, **Send Messages**, and **Embed Links** permissions for me in that channel.", ephemeral=True)
-            return
-
-        success = await interaction.client.settings_manager.set_channel(interaction.guild, "announcement", channel)
-        if success:
-            await interaction.response.send_message(f"Set the announcement channel to https://discord.com/channels/{interaction.guild.id}/{channel.id}", ephemeral=True)
-        else:
-            await interaction.response.send_message(f"Channel ID `{channel.id}` doesn't exist.", ephemeral=True)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(SettingsCog(bot))
