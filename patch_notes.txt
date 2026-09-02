@@ -1,5 +1,6 @@
 Updated from __v{0}__ to __v{1}__
 
 **Patch Notes:**
-- Switch to pathlib for path handling
+- Logging is now properly done
 - Patch notes are now read from /patch_notes.txt
+- Switch to pathlib for path handling
