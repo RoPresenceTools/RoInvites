@@ -74,6 +74,7 @@ class ChannelView(discord.ui.View):
             label="Create Channel",
             style=discord.ButtonStyle.primary
         )
+
         async def button_callback(interaction: discord.Interaction):
             if not interaction.guild.me.guild_permissions.manage_channels:
                 failure_view = FailureView()
@@ -83,7 +84,19 @@ class ChannelView(discord.ui.View):
                 )
 
             channel = await interaction.guild.create_text_channel(self.new_channel_name)
-            await interaction.client.settings_manager.set_channel(interaction.guild, self.channel_type, channel)
+            success = await interaction.client.settings_manager.set_channel(interaction.guild, self.channel_type, channel)
+            if success == True:
+                success_view = SuccessView()
+                await interaction.response.edit_message(
+                    embed = await success_view.get_embed(f"Set the {self.channel_type} channel to https://discord.com/channels/{interaction.guild.id}/{channel.id}"),
+                    view=success_view
+                )
+            else:
+                failure_view = FailureView()
+                await interaction.edit_original_response(
+                    embed=await failure_view.get_embed(f"Channel ID `{channel.id}` doesn't exist."),
+                    view=failure_view
+                )
 
         self.channel_select.callback = select_callback
         self.create_channel_button.callback = button_callback
@@ -125,7 +138,10 @@ class SetupView(discord.ui.View):
             )
             await channel_view.wait()
 
-            channel = channel_view.result.resolve()
+            result = channel_view.result
+            if result is None:
+                return
+            channel = result.resolve()
             permissions = channel.permissions_for(interaction.guild.me)
             if not (
                 permissions.view_channel and
@@ -185,7 +201,7 @@ class SettingsCog(commands.Cog):
         )
     )
 
-    @channel.command(name="setup", description="Allows you to configure RoInvites")
+    @channel.command(name="config", description="Allows you to configure RoInvites")
     @app_commands.allowed_contexts(
         guilds=True,
         dms=False,
@@ -193,7 +209,7 @@ class SettingsCog(commands.Cog):
     )
     @app_commands.default_permissions(manage_guild=True)
     @app_commands.checks.has_permissions(manage_guild=True)
-    async def setup(
+    async def config(
         self, 
         interaction: discord.Interaction
     ):
