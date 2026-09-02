@@ -3,6 +3,7 @@ import getpass
 import logging
 from discord import app_commands
 from discord.ext import commands
+from pathlib import Path
 from subprocess import Popen
 from datetime import datetime
 
@@ -122,11 +123,13 @@ class AdminCog(commands.Cog):
         if not await self.bot.is_owner(interaction.user):
             await interaction.response.send_message(f"You are not the bot owner.", ephemeral=True)
 
-        embed = discord.Embed(
-            title="An update has been issued!",
-            description=self.bot.patch_notes.format(self.bot.version, self.bot.version),
-            color=discord.Color.blue()
-        )
+        patch_notes = Path(__file__).parent / ".." / "patch_notes.txt"
+        if patch_notes.exists():
+            embed = discord.Embed(
+                title="An update has been issued!",
+                description=patch_notes.read_text().format(self.bot.version, self.bot.version),
+                color=discord.Color.blue()
+            )
 
         await interaction.response.send_message(embed=embed, ephemeral=True)
 

@@ -1,6 +1,11 @@
 Updated from __v{0}__ to __v{1}__
 
 **Patch Notes:**
+- Added a server setup command, `/settings setup`
+    - This replaces `/settings invites` and `/settings announcements`
+   - Server admins can set the invite/announcement channel through this command.
+   - Server admins can optionally create new invite/announcement channels through this command.
+- `/admin update_message` now reads directly from /patch_notes.txt
 - Logging is now properly done
 - Patch notes are now read from /patch_notes.txt
 - Switch to pathlib for path handling
