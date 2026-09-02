@@ -1,10 +1,12 @@
 import discord
 import database
 import importlib
+import logging
 from discord.ext import commands
 from dotenv import load_dotenv
 
 load_dotenv()
+logger = logging.getLogger(__name__)
 
 class RobloxInvitesBot(commands.Bot):
     def __init__(self, api, version, patch_notes):
@@ -87,7 +89,7 @@ class RobloxInvitesBot(commands.Bot):
     async def on_ready(self):
         for guild in self.guilds:
             await self.db.create_guild(guild)
-        print(f"{self.user} is online and ready!")
+        logger.info(f"{self.user} is online and ready!")
 
     async def on_guild_join(self, guild):
         await self.db.create_guild(guild)

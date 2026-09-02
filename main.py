@@ -1,11 +1,18 @@
 import os
 import asyncio
+import logging
 import notifier
 from bot import *
 from dotenv import load_dotenv
 from pathlib import Path
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+)
+
 load_dotenv()
+logger = logging.getLogger(__name__)
 cookie = os.environ.get("cookie", "")
 discord_token = os.environ.get("token", "")
 headers = {

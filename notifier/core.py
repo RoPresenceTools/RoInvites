@@ -1,8 +1,11 @@
 import discord
+import logging
 from styling.ansi import *
 from styling.ri_colors import *
 from styling.formatting import *
 from database.database import *
+
+logger = logging.getLogger(__name__)
 
 class TrackerCore:
     def __init__(self, bot):
@@ -65,7 +68,6 @@ class TrackerCore:
                 if await self.bot.stat_manager.check_currently_playing(user_id):
                     await self.bot.stat_manager.finish_tracking_playtime(user_id)
                 await self.bot.presence_manager.erase_presence(user_id)
-                print(f"{users[user_id]["username"]} is frozen.")
                 continue
 
             status = presences[user_id]["user_status"]
@@ -87,12 +89,9 @@ class TrackerCore:
                         await self.bot.transfer_manager.remove_transfer(user_id)
                     elif await self.bot.stat_manager.check_currently_playing(user_id):
                         await self.bot.stat_manager.finish_tracking_playtime(user_id)
-                print(f"{users[user_id]["username"]} is {'offline.' if status == 0 else 'on the Roblox website!'}")
             elif status == 2 and (game_instance_id is None or place_id is None):
                 if await self.bot.stat_manager.check_currently_playing(user_id):
                     await self.bot.stat_manager.finish_tracking_playtime(user_id)
-                print(f"{users[user_id]["username"]} has their joins off, or you aren't following them.")
-                print(f"   -> Follow them @ https://roblox.com/users/{user_id}/profile")
             elif status == 2:
                 if user_id in old_presences:
                     if await self.bot.transfer_manager.check_transfer(user_id):
@@ -107,11 +106,9 @@ class TrackerCore:
                             await self.bot.stat_manager.start_tracking_playtime(user_id, place_id)
                 else:
                     await self.bot.stat_manager.start_tracking_playtime(user_id, place_id)
-                print(f"{users[user_id]["username"]} is in a game: {underline}roblox://experiences/start?placeId={place_id}&gameInstanceId={game_instance_id}{end}")
             elif status == 3:
                 if await self.bot.stat_manager.check_currently_playing(user_id):
                     await self.bot.stat_manager.finish_tracking_playtime(user_id)
-                print(f"{users[user_id]["username"]} is in Roblox Studio.")
 
     async def send_invite(self, guild, user_id, place_id, game_instance_id, transfer=False):
         if await self.bot.blacklist_manager.check_blacklist(guild, place_id):
@@ -121,7 +118,8 @@ class TrackerCore:
             universe_id = await self.bot.api.get_universe_id(place_id)
             game = await self.bot.api.get_game_name(place_id)
             max_players = await self.bot.api.get_max_players(place_id)
-        except:
+        except Exception:
+            logger.exception("Something went wrong while trying to fetch game information.")
             return
 
         display_name = await self.bot.user_manager.get_display_name(user_id)
@@ -186,8 +184,8 @@ class TrackerCore:
         try:
             channel = self.bot.get_channel(invite_channel)
             await channel.send(embed=embed, view=view)
-        except:
-            pass
+        except Exception:
+            logger.exception("Something went wrong when trying to fetch a channel.")
 
     async def create_invite_card(self, discord_user):
         user_id = await self.bot.user_manager.get_user_from_discord_id(discord_user)
@@ -262,5 +260,5 @@ class TrackerCore:
         try:
             channel = self.bot.get_channel(invite_channel)
             await channel.send(embed=embed)
-        except:
-            pass
+        except Exception:
+            logger.exception("Something went wrong when trying to fetch a channel.")
