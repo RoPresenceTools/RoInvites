@@ -52,11 +52,11 @@ class PresenceTracker:
             except aiohttp.client_exceptions.ClientOSError:
                 pass
             except aiohttp.ClientResponseError:
-                logger.exception("A client response error has occured.")
+                logger.warning("A client response error has occured")
                 await asyncio.sleep(10)
             except aiohttp.client_exceptions.ClientConnectorCertificateError:
-                logger.exception("Couldn't connect to Roblox's servers.")
+                logger.exception("Couldn't connect to Roblox's servers. Make sure your certificates are up to date and that your network isn't blocking Roblox")
                 await asyncio.sleep(10)
             except aiohttp.client_exceptions.ClientResponseError:
-                logger.exception("Couldn't connect to Roblox's servers.")
+                logger.warning("A client response error has occured")
                 await asyncio.sleep(10)
