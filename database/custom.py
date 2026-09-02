@@ -48,7 +48,6 @@ class CGTManager:
         game_name = await self.api.get_game_name(place_id)
         root_place_id = await self.api.get_root_place_id(place_id)
 
-        print(guild.id, universe_id, title, hex_color, game_name, root_place_id)
         async with self.pool.acquire() as conn:
             added = await conn.fetchval(self.queries["add_custom_title"], guild.id, universe_id, title, hex_color, game_name, root_place_id)
             if added:
