@@ -55,34 +55,40 @@ class FailureView(discord.ui.View):
         return embed
 
 class ChannelView(discord.ui.View):
-    def __init__(self):
+    def __init__(self, channel_type):
         super().__init__()
         self.result = None
         self.go_back = BackButton()
+        self.channel_type = channel_type
+        self.new_channel_name = "roinvites" if self.channel_type == "invite" else "announcements"
 
-        channel_select = discord.ui.ChannelSelect(
+        self.channel_select = discord.ui.ChannelSelect(
             placeholder="Choose a channel...",
         )
         async def select_callback(interaction: discord.Interaction):
-            self.result = channel_select.values[0]
+            self.result = self.channel_select.values[0]
             await interaction.response.defer()
             self.stop()
 
-        create_channel_button = discord.ui.Button(
+        self.create_channel_button = discord.ui.Button(
             label="Create Channel",
             style=discord.ButtonStyle.primary
         )
         async def button_callback(interaction: discord.Interaction):
-            failure_view = FailureView()
-            await interaction.response.edit_message(
-                embed=await failure_view.get_embed("This feature is still unfinished!"),
-                view=failure_view
-            )
+            if not interaction.guild.me.guild_permissions.manage_channels:
+                failure_view = FailureView()
+                await interaction.response.edit_message(
+                    embed=await failure_view.get_embed("A server admin must enable the **Manage Channels** permission to create new channels."),
+                    view=failure_view
+                )
 
-        channel_select.callback = select_callback
-        create_channel_button.callback = button_callback
-        self.add_item(channel_select)
-        self.add_item(create_channel_button)
+            channel = await interaction.guild.create_text_channel(self.new_channel_name)
+            await interaction.client.settings_manager.set_channel(interaction.guild, self.channel_type, channel)
+
+        self.channel_select.callback = select_callback
+        self.create_channel_button.callback = button_callback
+        self.add_item(self.channel_select)
+        self.add_item(self.create_channel_button)
         self.add_item(self.go_back)
 
     async def on_timeout(self):
@@ -112,7 +118,7 @@ class SetupView(discord.ui.View):
     )
     async def callback(self, interaction: discord.Interaction, select):
         if select.values[0] in ["invite", "announcement"]:
-            channel_view = ChannelView()
+            channel_view = ChannelView(select.values[0])
             await interaction.response.edit_message(
                 embed=await channel_view.get_embed(f"Set the {select.values[0]} channel:"),
                 view=channel_view
@@ -143,9 +149,12 @@ class SetupView(discord.ui.View):
             else:
                 failure_view = FailureView()
                 await interaction.edit_original_response(
-                    embed=await failure_view.get_embed(f"Channel ID `{channel.id}` doesn't exist.")
+                    embed=await failure_view.get_embed(f"Channel ID `{channel.id}` doesn't exist."),
                     view=failure_view
                 )
+
+    async def on_timeout(self):
+        self.stop()
 
     async def get_embed(self):
         embed = discord.Embed(

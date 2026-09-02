@@ -14,6 +14,4 @@ class SettingsManager:
     async def set_channel(self, guild, channel_type, channel):
         async with self.pool.acquire() as conn:
             await conn.execute(self.queries[f"set_{channel_type}_channel"], guild.id, channel.id)
-
-        await channel.send(f"The {channel_type} channel has been set to this channel.")
         return True
