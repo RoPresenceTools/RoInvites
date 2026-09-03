@@ -46,6 +46,7 @@ class AdminCog(commands.Cog):
     ):
         if not await self.bot.is_owner(interaction.user):
             await interaction.response.send_message(f"You are not the bot owner.", ephemeral=True)
+            return
 
         await interaction.response.defer(ephemeral=True)
         success = await interaction.client.reload_extensions(interaction)
@@ -61,6 +62,7 @@ class AdminCog(commands.Cog):
     ):
         if not await self.bot.is_owner(interaction.user):
             await interaction.response.send_message(f"You are not the bot owner.", ephemeral=True)
+            return
 
         await interaction.response.defer(ephemeral=True)
         success = await interaction.client.user_manager.remove_user_id(user_id)
@@ -77,6 +79,7 @@ class AdminCog(commands.Cog):
     ):
         if not await self.bot.is_owner(interaction.user):
             await interaction.response.send_message(f"You are not the bot owner.", ephemeral=True)
+            return
 
         await interaction.response.defer(ephemeral=True)
         filename = datetime.now().strftime("backup_%m-%d-%Y_%H-%M-%S.sql")
@@ -96,6 +99,7 @@ class AdminCog(commands.Cog):
     ):
         if not await self.bot.is_owner(interaction.user):
             await interaction.response.send_message(f"You are not the bot owner.", ephemeral=True)
+            return
 
         await interaction.response.defer(ephemeral=True)
         for guild in self.bot.guilds:
@@ -132,6 +136,7 @@ class AdminCog(commands.Cog):
     ):
         if not await self.bot.is_owner(interaction.user):
             await interaction.response.send_message(f"You are not the bot owner.", ephemeral=True)
+            return
 
         patch_notes = Path(__file__).parent / ".." / "patch_notes.txt"
         if patch_notes.exists():
