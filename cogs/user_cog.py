@@ -114,20 +114,20 @@ class MainMenuView(discord.ui.View):
                     view=failure_view
                 )
         elif select.values[0] == "remove":
-            username_modal = UsernameModal()
-            await interaction.response.send_modal(username_modal)
-            await username_modal.wait()
-
             stored_user_id = await interaction.client.user_manager.get_user_from_discord_id(interaction.user)
             stored_username = await interaction.client.user_manager.get_username(stored_user_id)
 
             if stored_username is None:
                 failure_view = FailureView()
-                await interaction.edit_original_response(
-                    embed = await failure_view.get_embed(f"You don't have a Roblox account associated with RoInvites.\nAdd one with `/user config` > Add Account!"),
+                await interaction.response.edit_message(
+                    embed=await failure_view.get_embed(f"You don't have a Roblox account associated with RoInvites.\nAdd one with `/user config` > Add Account!"),
                     view=failure_view
                 )
                 return
+
+            username_modal = UsernameModal()
+            await interaction.response.send_modal(username_modal)
+            await username_modal.wait()
 
             username = username_modal.value
             if username.strip() == "":
