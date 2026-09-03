@@ -130,6 +130,14 @@ class MainMenuView(discord.ui.View):
             stored_user_id = await interaction.client.user_manager.get_user_from_discord_id(interaction.user)
             stored_username = await interaction.client.user_manager.get_username(stored_user_id)
 
+            if stored_username is None:
+                failure_view = FailureView()
+                await interaction.edit_original_response(
+                    embed = await failure_view.get_embed(f"You don't have a Roblox account associated with RoInvites.\nAdd one with `/user config` > Add Account!"),
+                    view=failure_view
+                )
+                return
+
             if username.lower() != stored_username.lower():
                 failure_view = FailureView()
                 await interaction.edit_original_response(
@@ -144,12 +152,6 @@ class MainMenuView(discord.ui.View):
                 await interaction.edit_original_response(
                     embed=await success_view.get_embed(f"Successfully removed you from RoInvites.\nHope you had a great time!"),
                     view=success_view
-                )
-            else:
-                failure_view = FailureView()
-                await interaction.edit_original_response(
-                    embed = await failure_view.get_embed(f"You don't have a Roblox account associated with RoInvites.\nAdd one with `/user config` > Add Account!"),
-                    view=failure_view
                 )
         elif select.values[0] == "freeze":
             success = await interaction.client.user_manager.modify_freeze_user(interaction.user, 1)
