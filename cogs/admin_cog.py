@@ -107,6 +107,16 @@ class AdminCog(commands.Cog):
                 color=discord.Color.dark_purple()
             )
 
+            user_id = await self.bot.user_manager.get_user_from_discord_id(interaction.user)
+            if user_id is not None:
+                username = await self.bot.user_manager.get_username(user_id)
+                display_name = await self.bot.user_manager.get_display_name(user_id)
+                if not None in (username, display_name):
+                    embed.title = f"Announcement from {display_name}"
+                thumbnail_url = await self.bot.api.get_avatar_headshot(user_id)
+                if thumbnail_url is not None:
+                    embed.set_thumbnail(url=thumbnail_url)
+
             try:
                 channel = self.bot.get_channel(announcement_channel)
                 await channel.send(embed=embed)
