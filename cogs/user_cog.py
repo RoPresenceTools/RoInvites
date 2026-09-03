@@ -141,7 +141,7 @@ class MainMenuView(discord.ui.View):
             if username.lower() != stored_username.lower():
                 failure_view = FailureView()
                 await interaction.edit_original_response(
-                    embed=await failure_view.get_embed("This username does not match the Roblox username we have on file.\nAborted account deletion."),
+                    embed=await failure_view.get_embed("This username does not match the Roblox username we have on file. Aborted account deletion.\nIf you recently changed your username, refresh your user info by clicking `Go back` and then click `Refresh User Info`."),
                     view=failure_view
                 )
                 return
