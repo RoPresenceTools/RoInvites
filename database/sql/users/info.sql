@@ -85,3 +85,10 @@ WHERE erased = 1;
 -- query: get_user_count
 SELECT COUNT(*)
 FROM users;
+
+-- query: is_admin
+SELECT EXISTS (
+    SELECT 1
+    FROM admins
+    WHERE discord_id = $1
+);

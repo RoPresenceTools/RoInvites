@@ -119,7 +119,7 @@ class UserManager:
     async def link_user(self, discord_user, guild):
         user_id = await self.get_user_from_discord_id(discord_user)
         if user_id is None:
-            return "You don't have a Roblox account associated with RoInvites.\nAdd one with `/user add`!"
+            return "You don't have a Roblox account associated with RoInvites.\nAdd one with `/user config` > Add Account!"
 
         async with self.pool.acquire() as conn:
             user_exists_in_guild = await conn.fetchval(self.queries["user_exists_in_guild"], guild.id, user_id)
@@ -142,7 +142,7 @@ class UserManager:
     async def modify_server_invites(self, discord_user, guild, value):
         user_id = await self.get_user_from_discord_id(discord_user)
         if user_id is None:
-            return "You don't have a Roblox account associated with RoInvites.\nAdd one with `/user add`!"
+            return "You don't have a Roblox account associated with RoInvites.\nAdd one with `/user config` > Add Account!"
 
         async with self.pool.acquire() as conn:
             user_exists_in_guild = await conn.fetchval(self.queries["user_exists_in_guild"], guild.id, user_id)
@@ -156,7 +156,7 @@ class UserManager:
     async def modify_freeze_user(self, discord_user, value):
         user_id = await self.get_user_from_discord_id(discord_user)
         if user_id is None:
-            return "You don't have a Roblox account associated with RoInvites.\nAdd one with `/user add`!"
+            return "You don't have a Roblox account associated with RoInvites.\nAdd one with `/user config` > Add Account!"
 
         async with self.pool.acquire() as conn:
             await conn.execute(self.queries["modify_freeze_user"], user_id, value)
@@ -174,10 +174,9 @@ class UserManager:
                 await conn.execute(self.queries[f"remove_deleted_{category}"], deleted_user_ids)
 
     async def update_user_info(self, discord_user):
-        async with self.pool.acquire() as conn:
-            user_id = await self.get_user_from_discord_id(discord_user)
-            if user_id is None:
-                return f"You don't have a Roblox account associated with RoInvites.\nAdd one with `/user add`!"
+        user_id = await self.get_user_from_discord_id(discord_user)
+        if user_id is None:
+            return f"You don't have a Roblox account associated with RoInvites.\nAdd one with `/user config` > Add Account!"
 
         req = await self.api.post_misc("https://users.roblox.com/v1/users", json={"userIds": [user_id]})
         if "data" not in req:
@@ -190,3 +189,15 @@ class UserManager:
         async with self.pool.acquire() as conn:
             await conn.execute(self.queries["update_user_info"], user_id, discord_user.id, username, display_name)
         return True
+
+    async def add_admin(self, discord_user):
+        async with self.pool.acquire() as conn:
+            await conn.execute(self.queries["add_admin"], discord_user.id)
+
+    async def remove_admin(self, discord_user):
+        async with self.pool.acquire() as conn:
+            await conn.execute(self.queries["remove_admin"], discord_user.id)
+
+    async def is_admin(self, discord_user):
+        async with self.pool.acquire() as conn:
+            return await conn.fetchval(self.queries["is_admin"], discord_user.id)

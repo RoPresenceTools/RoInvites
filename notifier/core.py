@@ -190,7 +190,7 @@ class TrackerCore:
     async def create_invite_card(self, discord_user):
         user_id = await self.bot.user_manager.get_user_from_discord_id(discord_user)
         if user_id == None:
-            return ("Error", f"You aren't part of RoInvites.\nSign up for RoInvites using `/user add`!", "https://roblox.com/home")
+            return ("Error", f"You aren't part of RoInvites.\nSign up for RoInvites using `/user config` > Add Account!", "https://roblox.com/home")
 
         username = await self.bot.user_manager.get_username(user_id)
         display_name = await self.bot.user_manager.get_display_name(user_id)

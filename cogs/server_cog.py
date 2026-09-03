@@ -246,7 +246,7 @@ class ServerCog(commands.Cog):
         if success == True:
             await interaction.followup.send(f"Removed you from this server. Hope you had a great time!")
         else:
-            await interaction.followup.send(f"You don't have a Roblox account associated with RoInvites.\nAdd one with `/user add`!")
+            await interaction.followup.send(f"You don't have a Roblox account associated with RoInvites.\nAdd one with `/user config` > Add Account!")
 
     @server.command(name="pause_invites", description="Pauses sending invites pertaining to your account in the current server")
     async def pause_invites(

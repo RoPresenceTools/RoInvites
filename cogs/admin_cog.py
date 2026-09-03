@@ -44,8 +44,11 @@ class AdminCog(commands.Cog):
         self, 
         interaction: discord.Interaction
     ):
-        if not await self.bot.is_owner(interaction.user):
-            await interaction.response.send_message(f"You are not the bot owner.", ephemeral=True)
+        if not (
+            await self.bot.user_manager.is_admin(interaction.user) or
+            await self.bot.is_owner(interaction.user)
+        ):
+            await interaction.response.send_message(f"You are not an admin.", ephemeral=True)
             return
 
         await interaction.response.defer(ephemeral=True)
@@ -60,8 +63,11 @@ class AdminCog(commands.Cog):
         interaction: discord.Interaction,
         user_id: int
     ):
-        if not await self.bot.is_owner(interaction.user):
-            await interaction.response.send_message(f"You are not the bot owner.", ephemeral=True)
+        if not (
+            await self.bot.user_manager.is_admin(interaction.user) or
+            await self.bot.is_owner(interaction.user)
+        ):
+            await interaction.response.send_message(f"You are not an admin.", ephemeral=True)
             return
 
         await interaction.response.defer(ephemeral=True)
@@ -77,8 +83,11 @@ class AdminCog(commands.Cog):
         self, 
         interaction: discord.Interaction
     ):
-        if not await self.bot.is_owner(interaction.user):
-            await interaction.response.send_message(f"You are not the bot owner.", ephemeral=True)
+        if not (
+            await self.bot.user_manager.is_admin(interaction.user) or
+            await self.bot.is_owner(interaction.user)
+        ):
+            await interaction.response.send_message(f"You are not an admin.", ephemeral=True)
             return
 
         await interaction.response.defer(ephemeral=True)
@@ -97,8 +106,11 @@ class AdminCog(commands.Cog):
         interaction: discord.Interaction,
         announcement_text: str
     ):
-        if not await self.bot.is_owner(interaction.user):
-            await interaction.response.send_message(f"You are not the bot owner.", ephemeral=True)
+        if not (
+            await self.bot.user_manager.is_admin(interaction.user) or
+            await self.bot.is_owner(interaction.user)
+        ):
+            await interaction.response.send_message(f"You are not an admin.", ephemeral=True)
             return
 
         await interaction.response.defer(ephemeral=True)
@@ -134,8 +146,11 @@ class AdminCog(commands.Cog):
         self, 
         interaction: discord.Interaction
     ):
-        if not await self.bot.is_owner(interaction.user):
-            await interaction.response.send_message(f"You are not the bot owner.", ephemeral=True)
+        if not (
+            await self.bot.user_manager.is_admin(interaction.user) or
+            await self.bot.is_owner(interaction.user)
+        ):
+            await interaction.response.send_message(f"You are not an admin.", ephemeral=True)
             return
 
         patch_notes = Path(__file__).parent / ".." / "patch_notes.txt"
@@ -147,6 +162,38 @@ class AdminCog(commands.Cog):
             )
 
         await interaction.response.send_message(embed=embed, ephemeral=True)
+
+    @admin.command(name="add_admin", description="Gives admin to a user")
+    async def add_admin(
+        self, 
+        interaction: discord.Interaction,
+        user: discord.User
+    ):
+        if not (
+            await self.bot.user_manager.is_admin(interaction.user) or
+            await self.bot.is_owner(interaction.user)
+        ):
+            await interaction.response.send_message(f"You are not an admin.", ephemeral=True)
+            return
+
+        await self.bot.user_manager.add_admin(user)
+        await interaction.response.send_message("Successfully added admin to this user!", ephemeral=True)
+
+    @admin.command(name="remove_admin", description="Removes admin from a user")
+    async def remove_admin(
+        self, 
+        interaction: discord.Interaction,
+        user: discord.User
+    ):
+        if not (
+            await self.bot.user_manager.is_admin(interaction.user) or
+            await self.bot.is_owner(interaction.user)
+        ):
+            await interaction.response.send_message(f"You are not an admin.", ephemeral=True)
+            return
+
+        await self.bot.user_manager.remove_admin(user)
+        await interaction.response.send_message("Successfully removed admin from this user!", ephemeral=True)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(AdminCog(bot))

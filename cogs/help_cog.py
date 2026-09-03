@@ -5,7 +5,7 @@ from discord.ext import commands
 help_message = """
 **Welcome to RoInvites!**
 I send invites to other server members when you join a game on Roblox, and track your playtime across Roblox games.
-To add yourself to the bot, run `/user add` followed by your username and verify if needed.
+To add yourself to the bot, run `/user config` > Add Account, type your username, and verify if needed.
 To add yourself to the current server, run `/server link`.
 To remove yourself from the current server, run `/server unlink`.
 To update your user info if you change your username/display name, run `/user update_info`.

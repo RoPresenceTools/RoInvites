@@ -124,7 +124,7 @@ class MainMenuView(discord.ui.View):
             else:
                 failure_view = FailureView()
                 await interaction.response.edit_message(
-                    embed = await failure_view.get_embed(f"You don't have a Roblox account associated with RoInvites.\nAdd one with `/user add`!"),
+                    embed = await failure_view.get_embed(f"You don't have a Roblox account associated with RoInvites.\nAdd one with `/user config` > Add Account!"),
                     view=failure_view
                 )
         elif select.values[0] == "freeze":
@@ -138,7 +138,7 @@ class MainMenuView(discord.ui.View):
             else:
                 failure_view = FailureView()
                 await interaction.response.edit_message(
-                    embed=await failure_view.get_embed(f"You don't have a Roblox account associated with RoInvites.\nAdd one with `/user add`!"),
+                    embed=await failure_view.get_embed(f"You don't have a Roblox account associated with RoInvites.\nAdd one with `/user config` > Add Account!"),
                     view=failure_view
                 )
         elif select.values[0] == "unfreeze":
@@ -152,7 +152,7 @@ class MainMenuView(discord.ui.View):
             else:
                 failure_view = FailureView()
                 await interaction.response.edit_message(
-                    embed=await failure_view.get_embed(f"You don't have a Roblox account associated with RoInvites.\nAdd one with `/user add`!"),
+                    embed=await failure_view.get_embed(f"You don't have a Roblox account associated with RoInvites.\nAdd one with `/user config` > Add Account!"),
                     view=failure_view
                 )
         elif select.values[0] == "refresh":

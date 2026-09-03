@@ -68,3 +68,13 @@ ON CONFLICT (user_id)
 DO UPDATE SET
     username = EXCLUDED.username,
     display_name = EXCLUDED.display_name;
+
+-- query: add_admin
+INSERT INTO admins (discord_id)
+VALUES ($1)
+ON CONFLICT (discord_id)
+DO NOTHING;
+
+-- query: remove_admin
+DELETE FROM admins
+WHERE discord_id = $1;

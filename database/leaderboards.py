@@ -254,7 +254,7 @@ class LeaderboardManager:
         else:
             user_id = await self.bot.user_manager.get_user_from_discord_id(discord_user)
             if user_id is None:
-                return ("Error", "You don't have a Roblox account associated with RoInvites.\nAdd one with `/user add`!")
+                return ("Error", "You don't have a Roblox account associated with RoInvites.\nAdd one with `/user config` > Add Account!")
 
         discord_user_id = await self.bot.user_manager.get_discord_id_from_user(user_id)
         game_playtimes = await self.get_game_playtimes("NO_GUILD", user_id, 0)
