@@ -81,7 +81,8 @@ class MainMenuView(discord.ui.View):
             discord.SelectOption(label="Add Account", value="add", emoji="➕", description="Add your Roblox account to RoInvites"),
             discord.SelectOption(label="Remove Account", value="remove", emoji="❌", description="Remove your Roblox account from RoInvites"),
             discord.SelectOption(label="Freeze Account", value="freeze", emoji="❄️", description="Freeze your RoInvites account"),
-            discord.SelectOption(label="Unfreeze Account", value="unfreeze", emoji="🔥", description="Unfreeze your RoInvites account")
+            discord.SelectOption(label="Unfreeze Account", value="unfreeze", emoji="🔥", description="Unfreeze your RoInvites account"),
+            discord.SelectOption(label="Refresh User Info", value="refresh", emoji="🔄", description="Refresh your username and display name")
         ]
     )
     async def callback(self, interaction: discord.Interaction, select):
@@ -97,7 +98,7 @@ class MainMenuView(discord.ui.View):
                     embed=await failure_view.get_embed("No username was given."),
                     view=failure_view
                 )
-                self.stop()
+                return
 
             success = await interaction.client.user_manager.add_user(username, interaction.user)
             if success == True:
@@ -154,6 +155,20 @@ class MainMenuView(discord.ui.View):
                     embed=await failure_view.get_embed(f"You don't have a Roblox account associated with RoInvites.\nAdd one with `/user add`!"),
                     view=failure_view
                 )
+        elif select.values[0] == "refresh":
+            success = await interaction.client.user_manager.update_user_info(interaction.user)
+            if success == True:
+                success_view = SuccessView()
+                await interaction.response.edit_message(
+                    embed=await success_view.get_embed("Successfully updated your user info!"),
+                    view=success_view
+                )
+            else:
+                failure_view = FailureView()
+                await interaction.response.edit_message(
+                    embed=await failure_view.get_embed(success),
+                    view=failure_view
+                )
 
     async def on_timeout(self):
         self.stop()
@@ -167,6 +182,7 @@ class MainMenuView(discord.ui.View):
             2. Remove your account
             3. Freeze your account
             4. Unfreeze your account
+            5. Refresh your username and display name
             """,
             color=discord.Color.dark_gold()
         )
@@ -199,43 +215,6 @@ class UserCog(commands.Cog):
         await interaction.response.send_message(embed=await view.get_embed(), view=view, ephemeral=True)
         await view.wait()
 
-    @user.command(name="add", description="Adds a new user to RoInvites")
-    async def add_user(
-        self, 
-        interaction: discord.Interaction, 
-        username: str
-    ):
-        await interaction.response.defer(ephemeral=True)
-        success = await interaction.client.user_manager.add_user(username, interaction.user)
-        if success == True:
-            await interaction.followup.send(f"Successfully added you (@{username}) to RoInvites!\nRun `/server link` in any server with me in it to participate in leaderboards and events!")
-        else:
-            await interaction.followup.send(success)
-
-    @user.command(name="remove", description="Removes you from RoInvites")
-    async def remove_user(
-        self, 
-        interaction: discord.Interaction, 
-    ):
-        await interaction.response.defer(ephemeral=True)
-        success = await interaction.client.user_manager.remove_user(interaction.user)
-        if success == True:
-            await interaction.followup.send(f"Removed you from RoInvites. Hope you had a great time!")
-        else:
-            await interaction.followup.send(f"You don't have a Roblox account associated with RoInvites.\nAdd one with `/user add`!")
-
-    @user.command(name="update_info", description="Updates your display name/username")
-    async def update_info(
-        self, 
-        interaction: discord.Interaction, 
-    ):
-        await interaction.response.defer(ephemeral=True)
-        success = await interaction.client.user_manager.update_user_info(interaction.user)
-        if success == True:
-            await interaction.followup.send(f"Successfully updated your user info!")
-        else:
-            await interaction.followup.send(success)
-
     @user.command(name="my_stats", description="Shows your statistics")
     async def get_user_card_dms(
         self,
@@ -255,30 +234,6 @@ class UserCog(commands.Cog):
             embed.set_thumbnail(url=thumbnail_url)
 
         await interaction.followup.send(embed=embed)
-
-    @user.command(name="freeze", description="Freezes your RoInvites account")
-    async def freeze(
-        self, 
-        interaction: discord.Interaction, 
-    ):
-        await interaction.response.defer(ephemeral=True)
-        success = await interaction.client.user_manager.modify_freeze_user(interaction.user, 1)
-        if success == True:
-            await interaction.followup.send(f"Successfully froze your account!")
-        else:
-            await interaction.followup.send(f"You don't have a Roblox account associated with RoInvites.\nAdd one with `/user add`!")
-
-    @user.command(name="unfreeze", description="Unfreezes your RoInvites account")
-    async def unfreeze(
-        self, 
-        interaction: discord.Interaction, 
-    ):
-        await interaction.response.defer(ephemeral=True)
-        success = await interaction.client.user_manager.modify_freeze_user(interaction.user, 0)
-        if success == True:
-            await interaction.followup.send(f"Successfully unfroze your account!")
-        else:
-            await interaction.followup.send(f"You don't have a Roblox account associated with RoInvites.\nAdd one with `/user add`!")
 
     @app_commands.command(name="send_invite", description="Sends out your own personal invite card!")
     @app_commands.allowed_installs(guilds=True, users=True)

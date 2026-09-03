@@ -125,8 +125,8 @@ class SetupView(discord.ui.View):
     @discord.ui.select(
         placeholder="Choose an option...",
         options=[
-            discord.SelectOption(label="Invite Channel", value="invite", emoji="👥", description="This channel is where invite/leave messages are sent."),
-            discord.SelectOption(label="Announcement Channel", value="announcement", emoji="📢", description="This channel is where global announcements are sent.")
+            discord.SelectOption(label="Invite Channel", value="invite", emoji="👥", description="Control where invite/leave messages are sent"),
+            discord.SelectOption(label="Announcement Channel", value="announcement", emoji="📢", description="Control where global announcements are sent")
         ]
     )
     async def callback(self, interaction: discord.Interaction, select):
