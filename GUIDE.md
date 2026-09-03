@@ -4,7 +4,7 @@ Below you can find a guide on how to use this bot.<br>
 
 ### Adding yourself to the bot
 Adding yourself to RoInvites is super easy!<br>
-To add yourself to the bot, run `/user add YOUR_USERNAME`. You will need to verify your Roblox account.<br>
+To add yourself to the bot, run `/user config`, click `Add Account`, and enter your Roblox username. You will need to verify your Roblox account.<br>
 **Make sure to friend [@RobloxInvitesHolder](https://www.roblox.com/users/11263892678/profile) so you can be tracked properly.**<br>
 
 Run `/server link` on any servers you want to link your Discord account with.<br>
@@ -12,7 +12,7 @@ You'll need to do this to participate in server leaderboards and for invite/leav
 
 ### Removing yourself from the bot
 Removing yourself from RoInvites is equally easy.<br>
-To remove yourself from the bot, run `/user remove`. All of your data (besides server snapshots) will be deleted.<br>
+To remove yourself from the bot, run `/user config` and click `Remove Account`. All of your data (besides server snapshots) will be deleted.<br>
 If you only want to stop being tracked in a specific server, you can run `/server unlink` in that server.
 
 ### Leaderboards

@@ -1,7 +1,7 @@
 # RoInvites Privacy Policy
 **By using or participating in the services offered by the official instance of RoInvites, you agree to the terms set forth in this Privacy Policy.** Other instances of this program are not bound to this Privacy Policy.<br>
 When a newer version of the Privacy Policy is released, any older versions of the Privacy Policy are void. The Privacy Policy is subject to change at any time without notice.<br>
-**Last update:** 8/18/2026 12:50PM EDT<br>
+**Last update:** 9/3/2026 2:01PM EDT<br>
 
 ### I. Data Collection
 RoInvites stores this data in order to provide its services to you:
@@ -40,9 +40,9 @@ If you want to pause sending invite messages/leave messages pertaining to your a
 Other servers may still receive invites pertaining to your account and your playtime will still accumulate.<br>
 You can run `/server resume_invites` in the paused server to resume invite message/leave message sending in that server.<br>
 
-If you want to freeze your account for any period of time, run `/user freeze`.<br>
+If you want to freeze your account for any period of time, run `/user config` and click `Freeze Account`.<br>
 All servers will stop sending invite messages/leave messages pertaining to your account and playtime will stop accumulating.<br>
-You can run `/user unfreeze` to disable this privacy control.<br>
+You can run `/user config` and click `Unfreeze Account` to disable this privacy control.<br>
 
 If you don’t want to be tracked by RoInvites anymore, run `/user remove`.<br>
 This is an irreversible action and deletes all account data except data stored within user data snapshots.<br>
