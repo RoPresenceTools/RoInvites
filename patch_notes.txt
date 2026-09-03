@@ -1,4 +1,5 @@
 Updated from __v{0}__ to __v{1}__
 
 **Patch Notes:**
-- Fixed an issue where admin commands caused errors in logs if the user running them wasn't the bot owner
+- Added a confirmation page before deleting your Roblox Invites account
+- Added the ability for a bot admin to add/remove bot admins that are not owner(s) of the bot

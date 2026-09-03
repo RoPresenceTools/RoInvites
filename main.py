@@ -19,7 +19,7 @@ headers = {
     "Cookie": f".ROBLOSECURITY={cookie}"
 }
 
-version = "2.7.1"
+version = "2.8.0"
 patch_notes = (Path(__file__).parent / "patch_notes.txt").read_text()
 
 backup_folder = Path(__file__).parent / "database" / "backups"
