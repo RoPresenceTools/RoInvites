@@ -118,15 +118,6 @@ class MainMenuView(discord.ui.View):
             await interaction.response.send_modal(username_modal)
             await username_modal.wait()
 
-            username = username_modal.value
-            if username.strip() == "":
-                failure_view = FailureView()
-                await interaction.edit_original_response(
-                    embed=await failure_view.get_embed("No username was given."),
-                    view=failure_view
-                )
-                return
-
             stored_user_id = await interaction.client.user_manager.get_user_from_discord_id(interaction.user)
             stored_username = await interaction.client.user_manager.get_username(stored_user_id)
 
@@ -134,6 +125,15 @@ class MainMenuView(discord.ui.View):
                 failure_view = FailureView()
                 await interaction.edit_original_response(
                     embed = await failure_view.get_embed(f"You don't have a Roblox account associated with RoInvites.\nAdd one with `/user config` > Add Account!"),
+                    view=failure_view
+                )
+                return
+
+            username = username_modal.value
+            if username.strip() == "":
+                failure_view = FailureView()
+                await interaction.edit_original_response(
+                    embed=await failure_view.get_embed("No username was given."),
                     view=failure_view
                 )
                 return
