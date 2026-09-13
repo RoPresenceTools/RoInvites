@@ -1,5 +1,8 @@
 Updated from __v{0}__ to __v{1}__
 
 **Patch Notes:**
-- Added a confirmation page before deleting your Roblox Invites account
-- Added the ability for a bot admin to add/remove bot admins that are not owner(s) of the bot
+- Removed the ability for non-bot-owner admins to add/remove other admins
+- Migrated many critical developer-only commands to the `/dev` namespace
+    - `/admin backup` has been migrated to `/dev backup`
+  - `/admin update_message` has been migrated to `/dev update_message`
+  - `/admin reload` has been migrated to `/dev reload`

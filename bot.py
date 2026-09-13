@@ -45,6 +45,7 @@ class RobloxInvitesBot(commands.Bot):
         await self.load_extension("cogs.server_cog")
         await self.load_extension("cogs.snapshot_cog")
         await self.load_extension("cogs.admin_cog")
+        await self.load_extension("cogs.dev_cog")
 
         await self.tree.sync()
 
@@ -80,6 +81,7 @@ class RobloxInvitesBot(commands.Bot):
         await self.reload_extension("cogs.server_cog")
         await self.reload_extension("cogs.snapshot_cog")
         await self.reload_extension("cogs.admin_cog")
+        await self.reload_extension("cogs.dev_cog")
 
         logger.info("Reloaded all extensions")
         await interaction.followup.send("Successfully reloaded all extensions!")

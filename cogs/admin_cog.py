@@ -169,11 +169,8 @@ class AdminCog(commands.Cog):
         interaction: discord.Interaction,
         user: discord.User
     ):
-        if not (
-            await self.bot.user_manager.is_admin(interaction.user) or
-            await self.bot.is_owner(interaction.user)
-        ):
-            await interaction.response.send_message(f"You are not an admin.", ephemeral=True)
+        if not await self.bot.is_owner(interaction.user):
+            await interaction.response.send_message(f"You are not the bot owner.", ephemeral=True)
             return
 
         await self.bot.user_manager.add_admin(user)
@@ -185,11 +182,8 @@ class AdminCog(commands.Cog):
         interaction: discord.Interaction,
         user: discord.User
     ):
-        if not (
-            await self.bot.user_manager.is_admin(interaction.user) or
-            await self.bot.is_owner(interaction.user)
-        ):
-            await interaction.response.send_message(f"You are not an admin.", ephemeral=True)
+        if not await self.bot.is_owner(interaction.user):
+            await interaction.response.send_message(f"You are not the bot owner.", ephemeral=True)
             return
 
         await self.bot.user_manager.remove_admin(user)
