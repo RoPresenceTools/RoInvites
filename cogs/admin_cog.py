@@ -78,28 +78,6 @@ class AdminCog(commands.Cog):
         else:
             await interaction.followup.send(f"This user isn't associated with RoInvites.")
 
-    @admin.command(name="backup", description="Creates a .sql server backup")
-    async def create_backup(
-        self, 
-        interaction: discord.Interaction
-    ):
-        if not (
-            await self.bot.user_manager.is_admin(interaction.user) or
-            await self.bot.is_owner(interaction.user)
-        ):
-            await interaction.response.send_message(f"You are not an admin.", ephemeral=True)
-            return
-
-        await interaction.response.defer(ephemeral=True)
-        filename = datetime.now().strftime("backup_%m-%d-%Y_%H-%M-%S.sql")
-        backup_proc = Popen(["pg_dump", "-U", getpass.getuser(), "-d", "roblox_invites", "-f", f"./database/backups/{filename}"])
-        exit_code = backup_proc.wait()
-        if exit_code == 0:
-            logger.info(f"Created a server backup")
-            await interaction.followup.send("Successfully created a backup!")
-        else:
-            await interaction.followup.send(f"Couldn't create a backup. Exit code: {exit_code}")
-
     @admin.command(name="announce", description="Sends a global announcement")
     async def send_announcement(
         self, 
