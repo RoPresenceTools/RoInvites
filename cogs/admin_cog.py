@@ -1,13 +1,88 @@
 import discord
-import getpass
 import logging
 from discord import app_commands
 from discord.ext import commands
-from pathlib import Path
-from subprocess import Popen
-from datetime import datetime
 
 logger = logging.getLogger(__name__)
+
+class AnnouncementModal(discord.ui.Modal):
+    def __init__(self):
+        super().__init__(title="Create Announcement")
+        self.value = None
+        
+        self.announcement_input = discord.ui.TextInput(
+            label="Announcement",
+            placeholder="Enter announcement message...",
+            style=discord.TextStyle.long
+        )
+        self.add_item(self.announcement_input)
+
+        self.hex_input = discord.ui.TextInput(
+            label="Hex Color",
+            placeholder="Enter hex color... (optional)",
+            required=False,
+            min_length=6,
+            max_length=7
+        )
+        self.add_item(self.hex_input)
+
+        self.announcement_image_input = discord.ui.FileUpload(
+            custom_id="announcement_image",
+            required=False,
+            min_values=1,
+            max_values=1
+        )
+
+        self.label_container = discord.ui.Label(
+            text="Upload Image",
+            description="Upload an image with your announcement. (optional)",
+            component=self.announcement_image_input
+        )
+        self.add_item(self.label_container)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        self.value = self.announcement_input.value
+        await interaction.response.defer()
+
+        embed = discord.Embed(
+            title="Global Announcement",
+            description=self.value,
+            color=discord.Color.dark_purple() if self.hex_input.value.strip() == "" else int(self.hex_input.value, 16),
+        )
+
+        user_id = await interaction.client.user_manager.get_user_from_discord_id(interaction.user)
+        if user_id is not None:
+            username = await interaction.client.user_manager.get_username(user_id)
+            display_name = await interaction.client.user_manager.get_display_name(user_id)
+            if not None in (username, display_name):
+                embed.title = f"Announcement from {display_name}"
+            thumbnail_url = await interaction.client.api.get_avatar_headshot(user_id)
+            if thumbnail_url is not None:
+                embed.set_thumbnail(url=thumbnail_url)
+
+        allowed_extensions = (".png", ".jpg", ".jpeg")
+        attachments = self.announcement_image_input.values
+        if attachments:
+            target_file = attachments[0] if isinstance(attachments, list) else attachments
+            if target_file.filename.lower().endswith(allowed_extensions):
+                embed.set_image(url=target_file.url)
+            else:
+                await interaction.followup.send("The uploaded image must be a .png, .jpg, or .jpeg file.", ephemeral=True)
+                return
+
+        for guild in interaction.client.guilds:
+            announcement_channel = await interaction.client.settings_manager.get_channel(guild, "announcement")
+            try:
+                channel = interaction.client.get_channel(announcement_channel)
+                await channel.send(embed=embed)
+            except:
+                pass
+
+        logger.info(f"Sent global announcement: {self.value[:20].replace("\n", " ")}...")
+        await interaction.followup.send("Successfully sent announcement!", ephemeral=True)
+
+    async def on_timeout(self):
+        self.stop()
 
 class AdminCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -39,23 +114,6 @@ class AdminCog(commands.Cog):
         )
     )
 
-    @admin.command(name="reload", description="Reloads all extensions")
-    async def admin_reload_extensions(
-        self, 
-        interaction: discord.Interaction
-    ):
-        if not (
-            await self.bot.user_manager.is_admin(interaction.user) or
-            await self.bot.is_owner(interaction.user)
-        ):
-            await interaction.response.send_message(f"You are not an admin.", ephemeral=True)
-            return
-
-        await interaction.response.defer(ephemeral=True)
-        success = await interaction.client.reload_extensions(interaction)
-        if success != True:
-            await interaction.followup.send(f"Couldn't reload extensions.")
-
     @admin.command(name="remove", description="Removes a user from RoInvites")
     @app_commands.autocomplete(user_id=user_autocomplete)
     async def admin_remove_user(
@@ -82,7 +140,6 @@ class AdminCog(commands.Cog):
     async def send_announcement(
         self, 
         interaction: discord.Interaction,
-        announcement_text: str
     ):
         if not (
             await self.bot.user_manager.is_admin(interaction.user) or
@@ -91,81 +148,7 @@ class AdminCog(commands.Cog):
             await interaction.response.send_message(f"You are not an admin.", ephemeral=True)
             return
 
-        await interaction.response.defer(ephemeral=True)
-        for guild in self.bot.guilds:
-            announcement_channel = await self.bot.settings_manager.get_channel(guild, "announcement")
-
-            embed = discord.Embed(
-                title="Global Announcement",
-                description=announcement_text.replace("\\n", "\n"),
-                color=discord.Color.dark_purple()
-            )
-
-            user_id = await self.bot.user_manager.get_user_from_discord_id(interaction.user)
-            if user_id is not None:
-                username = await self.bot.user_manager.get_username(user_id)
-                display_name = await self.bot.user_manager.get_display_name(user_id)
-                if not None in (username, display_name):
-                    embed.title = f"Announcement from {display_name}"
-                thumbnail_url = await self.bot.api.get_avatar_headshot(user_id)
-                if thumbnail_url is not None:
-                    embed.set_thumbnail(url=thumbnail_url)
-
-            try:
-                channel = self.bot.get_channel(announcement_channel)
-                await channel.send(embed=embed)
-            except:
-                pass
-        logger.info(f"Sent global announcement: {announcement_text[:20]}...")
-        await interaction.followup.send("Successfully sent announcement!")
-
-    @admin.command(name="update_message", description="Shows the current update message")
-    async def send_update_message(
-        self, 
-        interaction: discord.Interaction
-    ):
-        if not (
-            await self.bot.user_manager.is_admin(interaction.user) or
-            await self.bot.is_owner(interaction.user)
-        ):
-            await interaction.response.send_message(f"You are not an admin.", ephemeral=True)
-            return
-
-        patch_notes = Path(__file__).parent / ".." / "patch_notes.txt"
-        if patch_notes.exists():
-            embed = discord.Embed(
-                title="An update has been issued!",
-                description=patch_notes.read_text().format(self.bot.version, self.bot.version),
-                color=discord.Color.blue()
-            )
-
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-
-    @admin.command(name="add_admin", description="Gives admin to a user")
-    async def add_admin(
-        self, 
-        interaction: discord.Interaction,
-        user: discord.User
-    ):
-        if not await self.bot.is_owner(interaction.user):
-            await interaction.response.send_message(f"You are not the bot owner.", ephemeral=True)
-            return
-
-        await self.bot.user_manager.add_admin(user)
-        await interaction.response.send_message("Successfully added admin to this user!", ephemeral=True)
-
-    @admin.command(name="remove_admin", description="Removes admin from a user")
-    async def remove_admin(
-        self, 
-        interaction: discord.Interaction,
-        user: discord.User
-    ):
-        if not await self.bot.is_owner(interaction.user):
-            await interaction.response.send_message(f"You are not the bot owner.", ephemeral=True)
-            return
-
-        await self.bot.user_manager.remove_admin(user)
-        await interaction.response.send_message("Successfully removed admin from this user!", ephemeral=True)
+        await interaction.response.send_modal(AnnouncementModal())
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(AdminCog(bot))

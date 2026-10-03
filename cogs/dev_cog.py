@@ -79,5 +79,31 @@ class DevCog(commands.Cog):
 
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
+    @dev.command(name="add_admin", description="Gives admin to a user")
+    async def add_admin(
+        self, 
+        interaction: discord.Interaction,
+        user: discord.User
+    ):
+        if not await self.bot.is_owner(interaction.user):
+            await interaction.response.send_message(f"You are not the bot owner.", ephemeral=True)
+            return
+
+        await self.bot.user_manager.add_admin(user)
+        await interaction.response.send_message("Successfully added admin to this user!", ephemeral=True)
+
+    @dev.command(name="remove_admin", description="Removes admin from a user")
+    async def remove_admin(
+        self, 
+        interaction: discord.Interaction,
+        user: discord.User
+    ):
+        if not await self.bot.is_owner(interaction.user):
+            await interaction.response.send_message(f"You are not the bot owner.", ephemeral=True)
+            return
+
+        await self.bot.user_manager.remove_admin(user)
+        await interaction.response.send_message("Successfully removed admin from this user!", ephemeral=True)
+
 async def setup(bot: commands.Bot):
     await bot.add_cog(DevCog(bot))
